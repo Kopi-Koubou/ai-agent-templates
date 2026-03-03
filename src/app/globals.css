@@ -232,13 +232,23 @@ button:hover {
 }
 
 input,
-select {
+select,
+textarea {
   background: var(--bg-soft);
   border: 1px solid var(--outline);
   border-radius: 0.6rem;
   color: var(--text-main);
-  min-height: 2.3rem;
   padding: 0.45rem 0.6rem;
+}
+
+input,
+select {
+  min-height: 2.3rem;
+}
+
+textarea {
+  min-height: 6rem;
+  resize: vertical;
 }
 
 .result-count {
@@ -294,6 +304,33 @@ select {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+.review-list {
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.review-item {
+  border: 1px solid var(--outline);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.review-item header {
+  margin-bottom: 0.4rem;
+}
+
+.review-item p {
+  margin: 0.35rem 0;
+}
+
+.review-form {
+  border-top: 1px solid var(--outline);
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 0.8rem;
 }
 
 .checkout-panel {

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ReviewForm } from "@/components/review-form";
 import { getTemplateBySlug } from "@/lib/catalog";
 import { formatCurrency } from "@/lib/format";
+import { getTemplateReviewSummary, listReviews } from "@/lib/review-store";
 import { buildTemplatePreview } from "@/lib/template-preview";
 
 interface TemplateDetailPageProps {
@@ -20,6 +22,8 @@ export default async function TemplateDetailPage({
   }
 
   const preview = buildTemplatePreview(template);
+  const reviewSummary = getTemplateReviewSummary(template);
+  const reviews = listReviews(template.slug, "newest");
 
   return (
     <article className="template-detail">
@@ -32,6 +36,10 @@ export default async function TemplateDetailPage({
           <p className="eyebrow">{template.category}</p>
           <h1>{template.title}</h1>
           <p>{template.longDescription}</p>
+          <p className="muted">
+            {reviewSummary.averageRating.toFixed(1)} / 5 from {reviewSummary.reviewCount}{" "}
+            verified reviews
+          </p>
           <div className="framework-row">
             {template.frameworks.map((framework) => (
               <span key={framework} className="framework-tag">
@@ -117,6 +125,39 @@ export default async function TemplateDetailPage({
       <section className="detail-panel">
         <h2>CUSTOMIZE preview</h2>
         <pre>{preview.customizePreview}</pre>
+      </section>
+
+      <section className="detail-panel" id="reviews">
+        <h2>Reviews</h2>
+        <p className="muted">
+          Average rating: {reviewSummary.averageRating.toFixed(1)} ({reviewSummary.reviewCount}{" "}
+          total)
+        </p>
+        {reviews.length === 0 ? (
+          <p className="muted">No reviews yet. Purchasers can submit one below.</p>
+        ) : (
+          <div className="review-list">
+            {reviews.map((review) => (
+              <article key={review.id} className="review-item">
+                <header>
+                  <strong>{review.rating.toFixed(1)} / 5</strong>
+                  <span className="muted">
+                    {" "}
+                    by {review.authorLabel} on{" "}
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
+                </header>
+                <p>{review.comment}</p>
+                {review.sellerResponse ? (
+                  <p className="muted">
+                    Seller response: {review.sellerResponse}
+                  </p>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        )}
+        <ReviewForm templateSlug={template.slug} />
       </section>
     </article>
   );

@@ -55,6 +55,12 @@ export default async function DashboardPage() {
                   >
                     Validate download link
                   </Link>
+                  <Link
+                    className="inline-link"
+                    href={`/templates/${purchase.templateSlug}#reviews`}
+                  >
+                    Leave a review
+                  </Link>
                 </div>
               </article>
             ))}
