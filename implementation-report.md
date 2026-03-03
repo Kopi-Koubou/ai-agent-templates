@@ -1,72 +1,61 @@
 # Implementation Report
 
 ## Summary
-Implemented the current scoped marketplace feature set in two incremental code commits plus a documentation commit:
+Implemented the current scoped feature set in two incremental commits, each followed by test/build validation:
 
-1. Expanded catalog/detail preview scope (F-003 aligned):
-   - Added `newest` and `popular` catalog sorting.
-   - Added richer template detail previews (README preview, CUSTOMIZE preview, file tree, demo placeholder metadata, version history).
-   - Added free starter metadata and endpoint for two starter templates.
-2. Added review/rating flows (F-005 baseline):
-   - In-memory verified-purchase review store with seeded reviews.
-   - Review listing API with `newest|rating|popular` sorting.
-   - Verified-purchase review creation API.
-   - Seller response API.
-   - Template detail review UI and review submission form.
-3. Refreshed implementation documentation.
+1. Purchase version tracking + update notification surfacing
+   - Added `purchasedVersion` to purchase records at checkout time.
+   - Added dashboard UI status showing whether each purchase is up to date or has a newer template version available.
+2. Favorites flow (saved templates)
+   - Added in-memory favorites store keyed by buyer email.
+   - Added authenticated favorites APIs:
+     - `GET /api/favorites`
+     - `POST /api/templates/[slug]/favorite`
+     - `DELETE /api/templates/[slug]/favorite`
+   - Added template-detail save/remove favorite toggle UI.
+   - Added dashboard “Saved templates” panel.
 
-Note on specs: `PRD.md` was available and used. `design-spec.md` and `tech-spec.md` were not present at the requested paths in this workspace.
+Specs note: `PRD.md` was available and used; `design-spec.md` and `tech-spec.md` were not present at the requested paths in this workspace.
 
 ## Changed Files
-- `src/lib/types.ts`
-- `src/data/templates.ts`
-- `src/lib/catalog.ts`
-- `src/lib/catalog.test.ts`
-- `src/lib/template-preview.ts`
-- `src/lib/http.ts`
-- `src/lib/review-store.ts`
-- `src/lib/review-store.test.ts`
-- `src/app/page.tsx`
-- `src/app/templates/page.tsx`
-- `src/app/templates/[slug]/page.tsx`
+- `src/lib/purchase-store.ts`
+- `src/lib/purchase-store.test.ts`
+- `src/app/api/purchase-download-flow.test.ts`
 - `src/app/dashboard/page.tsx`
 - `src/app/globals.css`
-- `src/components/template-card.tsx`
-- `src/components/review-form.tsx`
-- `src/app/api/purchases/route.ts`
-- `src/app/api/templates/[slug]/preview/route.ts`
-- `src/app/api/templates/[slug]/starter/route.ts`
-- `src/app/api/templates/[slug]/reviews/route.ts`
-- `src/app/api/templates/[slug]/reviews/[reviewId]/response/route.ts`
-- `src/app/api/template-preview.test.ts`
-- `src/app/api/reviews-flow.test.ts`
+- `src/lib/favorite-store.ts`
+- `src/lib/favorite-store.test.ts`
+- `src/app/api/favorites/route.ts`
+- `src/app/api/templates/[slug]/favorite/route.ts`
+- `src/app/api/favorites-flow.test.ts`
+- `src/components/favorite-toggle.tsx`
+- `src/app/templates/[slug]/page.tsx`
 - `implementation-report.md`
 
 ## Tests Run
-All commands completed successfully:
+Commands executed successfully after each increment:
 
 - `npm test`
-  - 22 tests passed across:
+  - 27 tests passed across:
     - `src/lib/catalog.test.ts`
+    - `src/lib/favorite-store.test.ts`
     - `src/lib/purchase-store.test.ts`
     - `src/lib/review-store.test.ts`
+    - `src/app/api/favorites-flow.test.ts`
     - `src/app/api/purchase-download-flow.test.ts`
-    - `src/app/api/template-preview.test.ts`
     - `src/app/api/reviews-flow.test.ts`
-- `npm run typecheck`
-- `npm run lint`
+    - `src/app/api/template-preview.test.ts`
 - `npm run build`
+  - Next.js production build completed successfully with generated app and API routes.
 
 ## Known Risks
-- `design-spec.md` and `tech-spec.md` are still missing, so final scope interpretation relied on `PRD.md` plus existing implementation context.
-- Stripe, Supabase Auth, email receipts, and signed storage URLs remain mocked/not integrated.
-- Purchase and review data are in-memory and reset on process restart.
-- Seller response endpoint currently has no seller authentication/authorization layer.
-- Demo and starter ZIP paths are placeholders (no backed storage artifacts).
+- `design-spec.md` and `tech-spec.md` are missing, so scope alignment was inferred from `PRD.md` plus existing codebase behavior.
+- Purchase, review, and favorites data remain in-memory and reset on process restart.
+- Checkout/payment, auth, receipts, and download asset delivery are still mocked (no live Stripe/Supabase integration).
+- Favorites and seller response actions currently rely on cookie presence without stronger auth/authorization controls.
 
 ## Next Steps
-1. Replace mock purchase flow with Stripe Checkout + webhook fulfillment and persisted order records.
-2. Move purchases/reviews/templates to Supabase Postgres and enforce row-level access policies.
-3. Serve real starter/full template ZIP assets via signed Supabase Storage URLs.
-4. Add authenticated seller permissions for response moderation endpoints.
-5. Add explicit update-notification and favorites persistence flows to close remaining F-004 requirements.
+1. Persist purchases/reviews/favorites in a real datastore (e.g., Supabase Postgres) with row-level access controls.
+2. Replace mock checkout with Stripe Checkout + webhook fulfillment and email receipt delivery.
+3. Gate favorites/review/seller actions behind real authenticated user sessions.
+4. Serve starter/full ZIP downloads from signed storage URLs and track template-version update events per user.
