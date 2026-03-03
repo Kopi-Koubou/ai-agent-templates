@@ -33,8 +33,8 @@ export default async function TemplateDetailPage({
         <aside className="price-panel">
           <p className="price">{formatCurrency(template.priceCents)}</p>
           <p className="muted">One-time purchase</p>
-          <Link href="/templates" className="btn-primary">
-            Browse all templates
+          <Link href="/checkout" className="btn-primary">
+            Buy template
           </Link>
         </aside>
       </header>

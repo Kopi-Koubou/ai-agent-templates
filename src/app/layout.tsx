@@ -23,7 +23,7 @@ export default function RootLayout({
             </Link>
             <nav>
               <Link href="/templates">Templates</Link>
-              <Link href="/templates?sort=price-asc">Pricing</Link>
+              <Link href="/checkout">Checkout</Link>
             </nav>
           </header>
 

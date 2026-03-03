@@ -19,8 +19,8 @@ export default function HomePage() {
           <Link className="btn-primary" href="/templates">
             Browse templates
           </Link>
-          <Link className="btn-ghost" href="/templates?complexity=beginner">
-            Explore starter options
+          <Link className="btn-ghost" href="/checkout">
+            Test checkout flow
           </Link>
         </div>
       </div>
