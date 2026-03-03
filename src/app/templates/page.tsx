@@ -73,6 +73,8 @@ export default async function TemplatesPage({
           Sort
           <select name="sort" defaultValue={resolvedSearchParams.sort?.toString() ?? "featured"}>
             <option value="featured">Featured</option>
+            <option value="newest">Newest</option>
+            <option value="popular">Most Popular</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
             <option value="rating-desc">Top Rated</option>

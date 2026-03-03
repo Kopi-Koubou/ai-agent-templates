@@ -12,7 +12,9 @@ export type SortMode =
   | "featured"
   | "price-asc"
   | "price-desc"
-  | "rating-desc";
+  | "rating-desc"
+  | "newest"
+  | "popular";
 
 export interface PreviewFile {
   path: string;
@@ -30,6 +32,7 @@ export interface Template {
   frameworks: TemplateFramework[];
   complexity: Complexity;
   priceCents: number;
+  publishedAt: string;
   rating: number;
   reviewCount: number;
   version: string;

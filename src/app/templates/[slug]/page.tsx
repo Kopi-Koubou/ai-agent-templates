@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { getTemplateBySlug } from "@/lib/catalog";
 import { formatCurrency } from "@/lib/format";
+import { buildTemplatePreview } from "@/lib/template-preview";
 
 interface TemplateDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -18,6 +19,8 @@ export default async function TemplateDetailPage({
     notFound();
   }
 
+  const preview = buildTemplatePreview(template);
+
   return (
     <article className="template-detail">
       <Link href="/templates" className="inline-link">
@@ -29,6 +32,13 @@ export default async function TemplateDetailPage({
           <p className="eyebrow">{template.category}</p>
           <h1>{template.title}</h1>
           <p>{template.longDescription}</p>
+          <div className="framework-row">
+            {template.frameworks.map((framework) => (
+              <span key={framework} className="framework-tag">
+                Compatible with {framework}
+              </span>
+            ))}
+          </div>
         </div>
         <aside className="price-panel">
           <p className="price">{formatCurrency(template.priceCents)}</p>
@@ -36,8 +46,35 @@ export default async function TemplateDetailPage({
           <Link href="/checkout" className="btn-primary">
             Buy template
           </Link>
+          {preview.starterAvailable ? (
+            <Link href={`/api/templates/${template.slug}/starter`} className="btn-ghost">
+              Get free starter
+            </Link>
+          ) : null}
         </aside>
       </header>
+
+      <section className="detail-panel">
+        <h2>Demo</h2>
+        <p className="muted">
+          Demo asset: <code>{preview.demoAssetUrl}</code>
+        </p>
+        <p>
+          GIF assets are represented as placeholder paths in this implementation workspace.
+        </p>
+      </section>
+
+      <section className="detail-panel">
+        <h2>Version history</h2>
+        <ul>
+          {preview.versionHistory.map((entry) => (
+            <li key={entry.version}>
+              <strong>{entry.version}</strong> (
+              {new Date(entry.releasedAt).toLocaleDateString()}) - {entry.notes}
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section>
         <h2>What&apos;s included</h2>
@@ -59,6 +96,27 @@ export default async function TemplateDetailPage({
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="detail-panel">
+        <h2>File tree</h2>
+        <ul className="file-tree-list">
+          {preview.fileTree.map((path) => (
+            <li key={path}>
+              <code>{path}</code>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="detail-panel">
+        <h2>README preview</h2>
+        <pre>{preview.readmePreview}</pre>
+      </section>
+
+      <section className="detail-panel">
+        <h2>CUSTOMIZE preview</h2>
+        <pre>{preview.customizePreview}</pre>
       </section>
     </article>
   );

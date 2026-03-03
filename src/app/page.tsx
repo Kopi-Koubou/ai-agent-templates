@@ -2,9 +2,13 @@ import Link from "next/link";
 
 import { TemplateCard } from "@/components/template-card";
 import { templates } from "@/data/templates";
+import { isStarterTemplateAvailable } from "@/lib/template-preview";
 
 export default function HomePage() {
   const featuredTemplates = templates.filter((template) => template.featured).slice(0, 4);
+  const freeStarterCount = templates.filter((template) =>
+    isStarterTemplateAvailable(template.slug)
+  ).length;
 
   return (
     <section className="home-grid">
@@ -31,6 +35,7 @@ export default function HomePage() {
           <li>8 templates across support, content, data, and devtools</li>
           <li>Frameworks: Claude Code, OpenClaw, LangGraph, CrewAI</li>
           <li>Preview files and tested setup guides included</li>
+          <li>{freeStarterCount} templates include a free starter package</li>
         </ul>
       </div>
 

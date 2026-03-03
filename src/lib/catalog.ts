@@ -66,6 +66,18 @@ function sortTemplates(list: Template[], sort: SortMode): Template[] {
   const sorted = [...list];
 
   switch (sort) {
+    case "newest":
+      return sorted.sort(
+        (a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt)
+      );
+    case "popular":
+      return sorted.sort((a, b) => {
+        if (a.reviewCount !== b.reviewCount) {
+          return b.reviewCount - a.reviewCount;
+        }
+
+        return b.rating - a.rating;
+      });
     case "price-asc":
       return sorted.sort((a, b) => a.priceCents - b.priceCents);
     case "price-desc":
@@ -107,7 +119,14 @@ export function parseCatalogQueryFromSearchParams(
 
   const sort =
     requestedSort &&
-    ["featured", "price-asc", "price-desc", "rating-desc"].includes(
+    [
+      "featured",
+      "price-asc",
+      "price-desc",
+      "rating-desc",
+      "newest",
+      "popular"
+    ].includes(
       requestedSort
     )
       ? requestedSort

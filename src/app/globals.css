@@ -77,7 +77,9 @@ a {
 .template-card,
 .price-panel,
 .preview-card,
-.checkout-panel {
+.checkout-panel,
+.detail-panel,
+.dashboard-panel {
   border: 1px solid var(--outline);
   border-radius: 1rem;
   background: linear-gradient(170deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0));
@@ -271,7 +273,8 @@ select {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
 
-.preview-card pre {
+.preview-card pre,
+.detail-panel pre {
   background: color-mix(in srgb, var(--bg-soft) 90%, black);
   border: 1px solid var(--outline);
   border-radius: 0.6rem;
@@ -282,6 +285,15 @@ select {
   overflow-x: auto;
   padding: 0.6rem;
   white-space: pre-wrap;
+}
+
+.file-tree-list {
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .checkout-panel {

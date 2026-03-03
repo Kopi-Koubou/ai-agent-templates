@@ -36,6 +36,26 @@ describe("catalog filtering", () => {
     );
   });
 
+  test("sorts by newest first", () => {
+    const results = filterTemplates(templates, {
+      sort: "newest"
+    });
+
+    expect(Date.parse(results[0].publishedAt)).toBeGreaterThanOrEqual(
+      Date.parse(results[results.length - 1].publishedAt)
+    );
+  });
+
+  test("sorts by popularity", () => {
+    const results = filterTemplates(templates, {
+      sort: "popular"
+    });
+
+    expect(results[0].reviewCount).toBeGreaterThanOrEqual(
+      results[results.length - 1].reviewCount
+    );
+  });
+
   test("parses URL query into catalog query", () => {
     const searchParams = new URLSearchParams(
       "q=data&category=data&framework=crewai&complexity=advanced&minPrice=79&sort=price-desc"
@@ -49,5 +69,12 @@ describe("catalog filtering", () => {
     expect(query.complexity).toEqual(["advanced"]);
     expect(query.minPrice).toBe(7900);
     expect(query.sort).toBe("price-desc");
+  });
+
+  test("parses popular sort mode", () => {
+    const searchParams = new URLSearchParams("sort=popular");
+    const query = parseCatalogQueryFromSearchParams(searchParams);
+
+    expect(query.sort).toBe("popular");
   });
 });
