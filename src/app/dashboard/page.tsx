@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getTemplateBySlug } from "@/lib/catalog";
+import { listFavoritesByEmail } from "@/lib/favorite-store";
 import { listPurchasesByEmail } from "@/lib/purchase-store";
 
 const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
@@ -16,6 +17,9 @@ export default async function DashboardPage() {
   }
 
   const purchases = listPurchasesByEmail(buyerEmail);
+  const favoriteTemplates = listFavoritesByEmail(buyerEmail)
+    .map((slug) => getTemplateBySlug(slug))
+    .filter((template) => template !== undefined);
 
   return (
     <section>
@@ -85,6 +89,30 @@ export default async function DashboardPage() {
           </div>
         </section>
       )}
+
+      <section className="dashboard-panel">
+        <h2>Saved templates</h2>
+        {favoriteTemplates.length === 0 ? (
+          <p className="muted">No favorites yet. Save templates from detail pages.</p>
+        ) : (
+          <div className="purchase-list">
+            {favoriteTemplates.map((template) => (
+              <article key={template.slug} className="purchase-item">
+                <div>
+                  <h3>{template.title}</h3>
+                  <p className="muted">{template.summary}</p>
+                </div>
+                <div className="purchase-meta">
+                  <p>Latest version: {template.version}</p>
+                  <Link className="inline-link" href={`/templates/${template.slug}`}>
+                    Open template
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </section>
   );
 }

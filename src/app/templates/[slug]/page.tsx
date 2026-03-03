@@ -1,8 +1,11 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
+import { FavoriteToggle } from "@/components/favorite-toggle";
 import { ReviewForm } from "@/components/review-form";
 import { getTemplateBySlug } from "@/lib/catalog";
+import { isTemplateFavoritedByEmail } from "@/lib/favorite-store";
 import { formatCurrency } from "@/lib/format";
 import { getTemplateReviewSummary, listReviews } from "@/lib/review-store";
 import { buildTemplatePreview } from "@/lib/template-preview";
@@ -24,6 +27,11 @@ export default async function TemplateDetailPage({
   const preview = buildTemplatePreview(template);
   const reviewSummary = getTemplateReviewSummary(template);
   const reviews = listReviews(template.slug, "newest");
+  const cookieStore = await cookies();
+  const buyerEmail = cookieStore.get("agentvault_buyer_email")?.value;
+  const initiallySaved =
+    typeof buyerEmail === "string" &&
+    isTemplateFavoritedByEmail(buyerEmail, template.slug);
 
   return (
     <article className="template-detail">
@@ -54,6 +62,7 @@ export default async function TemplateDetailPage({
           <Link href="/checkout" className="btn-primary">
             Buy template
           </Link>
+          <FavoriteToggle templateSlug={template.slug} initiallySaved={initiallySaved} />
           {preview.starterAvailable ? (
             <Link href={`/api/templates/${template.slug}/starter`} className="btn-ghost">
               Get free starter

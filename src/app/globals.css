@@ -360,6 +360,38 @@ textarea {
   text-decoration: none;
 }
 
+.favorite-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.purchase-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.purchase-item {
+  border: 1px solid var(--outline);
+  border-radius: 0.75rem;
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.75rem;
+}
+
+.purchase-item h2,
+.purchase-item h3 {
+  margin: 0;
+}
+
+.purchase-item p {
+  margin: 0.25rem 0;
+}
+
+.purchase-meta {
+  display: grid;
+  gap: 0.3rem;
+}
+
 .update-notice {
   color: var(--accent-soft);
   font-weight: 600;
