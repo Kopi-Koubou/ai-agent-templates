@@ -1,6 +1,6 @@
 import { getTemplateBySlug } from "@/lib/catalog";
 
-const PURCHASE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+export const PURCHASE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export interface PurchaseRecord {
   token: string;
@@ -10,9 +10,15 @@ export interface PurchaseRecord {
   email: string;
   purchasedAt: string;
   expiresAt: string;
+  downloadCount: number;
+  lastDownloadedAt?: string;
 }
 
 const purchases = new Map<string, PurchaseRecord>();
+
+function isExpired(record: PurchaseRecord): boolean {
+  return Date.parse(record.expiresAt) < Date.now();
+}
 
 export function createPurchase(templateSlug: string, email: string): PurchaseRecord {
   const template = getTemplateBySlug(templateSlug);
@@ -29,9 +35,10 @@ export function createPurchase(templateSlug: string, email: string): PurchaseRec
     orderId,
     templateSlug: template.slug,
     templateTitle: template.title,
-    email,
+    email: email.trim().toLowerCase(),
     purchasedAt: new Date(now).toISOString(),
-    expiresAt: new Date(now + PURCHASE_TTL_MS).toISOString()
+    expiresAt: new Date(now + PURCHASE_TTL_MS).toISOString(),
+    downloadCount: 0
   };
 
   purchases.set(token, record);
@@ -44,12 +51,48 @@ export function getPurchaseByToken(token: string): PurchaseRecord | null {
     return null;
   }
 
-  if (Date.parse(record.expiresAt) < Date.now()) {
+  if (isExpired(record)) {
     purchases.delete(token);
     return null;
   }
 
   return record;
+}
+
+export function listPurchasesByEmail(email: string): PurchaseRecord[] {
+  const normalizedEmail = email.trim().toLowerCase();
+  const records: PurchaseRecord[] = [];
+
+  for (const [token, purchase] of purchases.entries()) {
+    if (isExpired(purchase)) {
+      purchases.delete(token);
+      continue;
+    }
+
+    if (purchase.email === normalizedEmail) {
+      records.push(purchase);
+    }
+  }
+
+  return records.sort(
+    (a, b) => Date.parse(b.purchasedAt) - Date.parse(a.purchasedAt)
+  );
+}
+
+export function recordDownload(token: string): PurchaseRecord | null {
+  const purchase = getPurchaseByToken(token);
+  if (!purchase) {
+    return null;
+  }
+
+  const updatedRecord: PurchaseRecord = {
+    ...purchase,
+    downloadCount: purchase.downloadCount + 1,
+    lastDownloadedAt: new Date().toISOString()
+  };
+
+  purchases.set(token, updatedRecord);
+  return updatedRecord;
 }
 
 export function clearPurchaseStoreForTests(): void {

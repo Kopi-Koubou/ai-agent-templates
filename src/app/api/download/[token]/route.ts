@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getPurchaseByToken } from "@/lib/purchase-store";
+import { recordDownload } from "@/lib/purchase-store";
 
 interface Context {
   params: Promise<{ token: string }>;
@@ -11,7 +11,7 @@ export async function GET(
   context: Context
 ): Promise<Response> {
   const { token } = await context.params;
-  const purchase = getPurchaseByToken(token);
+  const purchase = recordDownload(token);
 
   if (!purchase) {
     return NextResponse.json(
@@ -24,7 +24,9 @@ export async function GET(
     template: purchase.templateTitle,
     purchasedAt: purchase.purchasedAt,
     expiresAt: purchase.expiresAt,
+    downloadCount: purchase.downloadCount,
+    downloadUrl: `/downloads/${purchase.templateSlug}.zip`,
     downloadHint:
-      "In production this endpoint returns a signed storage URL for a template ZIP package."
+      "In production this endpoint returns a signed Supabase storage URL for a template ZIP package."
   });
 }

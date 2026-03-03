@@ -24,6 +24,7 @@ export default function RootLayout({
             <nav>
               <Link href="/templates">Templates</Link>
               <Link href="/checkout">Checkout</Link>
+              <Link href="/dashboard">Dashboard</Link>
             </nav>
           </header>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
 import { Template } from "@/lib/types";
@@ -19,6 +20,8 @@ interface DownloadResponse {
   template: string;
   purchasedAt: string;
   expiresAt: string;
+  downloadCount: number;
+  downloadUrl: string;
   downloadHint: string;
 }
 
@@ -138,9 +141,14 @@ export function CheckoutForm({ templates }: CheckoutFormProps) {
             Token: <code>{purchase.token}</code>
           </p>
           <p>Expires: {new Date(purchase.expiresAt).toLocaleString()}</p>
-          <button type="button" onClick={handleDownload}>
-            Validate download link
-          </button>
+          <div className="checkout-actions">
+            <button type="button" onClick={handleDownload}>
+              Validate download link
+            </button>
+            <Link className="btn-ghost" href="/dashboard">
+              Open buyer dashboard
+            </Link>
+          </div>
         </div>
       ) : null}
 
@@ -150,6 +158,10 @@ export function CheckoutForm({ templates }: CheckoutFormProps) {
           <p>Template: {download.template}</p>
           <p>Purchased at: {new Date(download.purchasedAt).toLocaleString()}</p>
           <p>Expires: {new Date(download.expiresAt).toLocaleString()}</p>
+          <p>Downloads used: {download.downloadCount}</p>
+          <p>
+            Asset path: <code>{download.downloadUrl}</code>
+          </p>
           <p className="muted">{download.downloadHint}</p>
         </div>
       ) : null}

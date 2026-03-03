@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { createPurchase } from "@/lib/purchase-store";
+import { createPurchase, PURCHASE_TTL_MS } from "@/lib/purchase-store";
+
+const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
 
 const purchaseSchema = z.object({
   templateSlug: z.string().min(1),
@@ -22,12 +24,22 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const purchase = createPurchase(parsed.data.templateSlug, parsed.data.email);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       orderId: purchase.orderId,
       token: purchase.token,
       expiresAt: purchase.expiresAt,
-      downloadPath: `/api/download/${purchase.token}`
+      downloadPath: `/api/download/${purchase.token}`,
+      dashboardPath: "/dashboard"
     });
+
+    response.cookies.set(BUYER_EMAIL_COOKIE, purchase.email, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: Math.round(PURCHASE_TTL_MS / 1000)
+    });
+
+    return response;
   } catch (error) {
     return NextResponse.json(
       {
