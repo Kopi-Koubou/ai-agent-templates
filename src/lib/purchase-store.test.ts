@@ -18,6 +18,7 @@ describe("purchase store", () => {
 
     expect(purchase.orderId).toMatch(/^ord_/);
     expect(purchase.token.length).toBeGreaterThan(20);
+    expect(purchase.purchasedVersion).toBe("1.2.0");
     expect(purchase.downloadCount).toBe(0);
 
     const retrieved = getPurchaseByToken(purchase.token);

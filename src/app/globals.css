@@ -360,6 +360,11 @@ textarea {
   text-decoration: none;
 }
 
+.update-notice {
+  color: var(--accent-soft);
+  font-weight: 600;
+}
+
 .site-footer {
   color: var(--text-muted);
   margin-top: 1.6rem;

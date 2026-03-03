@@ -7,6 +7,7 @@ export interface PurchaseRecord {
   orderId: string;
   templateSlug: string;
   templateTitle: string;
+  purchasedVersion: string;
   email: string;
   purchasedAt: string;
   expiresAt: string;
@@ -35,6 +36,7 @@ export function createPurchase(templateSlug: string, email: string): PurchaseRec
     orderId,
     templateSlug: template.slug,
     templateTitle: template.title,
+    purchasedVersion: template.version,
     email: email.trim().toLowerCase(),
     purchasedAt: new Date(now).toISOString(),
     expiresAt: new Date(now + PURCHASE_TTL_MS).toISOString(),

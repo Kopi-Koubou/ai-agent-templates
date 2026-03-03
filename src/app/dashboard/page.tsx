@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { getTemplateBySlug } from "@/lib/catalog";
 import { listPurchasesByEmail } from "@/lib/purchase-store";
 
 const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
@@ -48,6 +49,23 @@ export default async function DashboardPage() {
                   <p>Purchased: {new Date(purchase.purchasedAt).toLocaleString()}</p>
                   <p>Downloads: {purchase.downloadCount}</p>
                   <p>Expires: {new Date(purchase.expiresAt).toLocaleDateString()}</p>
+                  {(() => {
+                    const template = getTemplateBySlug(purchase.templateSlug);
+                    if (!template || template.version === purchase.purchasedVersion) {
+                      return (
+                        <p className="muted">
+                          Version: {purchase.purchasedVersion} (up to date)
+                        </p>
+                      );
+                    }
+
+                    return (
+                      <p className="update-notice">
+                        Update available: {template.version} (you bought{" "}
+                        {purchase.purchasedVersion})
+                      </p>
+                    );
+                  })()}
                   <Link
                     className="inline-link"
                     href={`/api/download/${purchase.token}`}

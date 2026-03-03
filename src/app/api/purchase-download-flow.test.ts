@@ -18,7 +18,7 @@ interface DownloadResponse {
 
 interface PurchasesResponse {
   count: number;
-  purchases: Array<{ templateSlug: string }>;
+  purchases: Array<{ templateSlug: string; purchasedVersion: string }>;
 }
 
 describe("purchase and download API flow", () => {
@@ -66,6 +66,7 @@ describe("purchase and download API flow", () => {
     const history = (await historyResponse.json()) as PurchasesResponse;
     expect(history.count).toBe(1);
     expect(history.purchases[0]?.templateSlug).toBe("supportbot-pro");
+    expect(history.purchases[0]?.purchasedVersion).toBe("1.2.0");
   });
 
   test("rejects purchase-history access without auth cookie", async () => {
