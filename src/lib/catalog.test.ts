@@ -115,6 +115,16 @@ describe("catalog filtering", () => {
     expect(query.sort).toBe("popular");
   });
 
+  test("parses repeated enum filters from URL query params", () => {
+    const searchParams = new URLSearchParams(
+      "framework=openclaw&framework=crewai&category=support&category=data"
+    );
+    const query = parseCatalogQueryFromSearchParams(searchParams);
+
+    expect(query.frameworks).toEqual(["openclaw", "crewai"]);
+    expect(query.categories).toEqual(["support", "data"]);
+  });
+
   test("ignores invalid enum filters", () => {
     const searchParams = new URLSearchParams(
       "category=invalid&framework=unknown&complexity=nope"

@@ -60,33 +60,26 @@ const QUERY_STOP_WORDS = new Set([
   "with"
 ]);
 
-function parseList(value: string | null): string[] | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  const items = value
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-
-  return items.length > 0 ? items : undefined;
-}
-
-function parseEnumList<T extends string>(
-  value: string | null,
+function parseEnumListFromSearchParams<T extends string>(
+  searchParams: URLSearchParams,
+  key: string,
   allowedValues: Set<T>
 ): T[] | undefined {
-  const parsed = parseList(value);
-  if (!parsed) {
+  const rawValues = searchParams
+    .getAll(key)
+    .flatMap((value) => value.split(","))
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (rawValues.length === 0) {
     return undefined;
   }
 
-  const filtered = parsed.filter((item): item is T =>
+  const filtered = rawValues.filter((item): item is T =>
     allowedValues.has(item as T)
   );
 
-  return filtered.length > 0 ? filtered : undefined;
+  return filtered.length > 0 ? Array.from(new Set(filtered)) : undefined;
 }
 
 function parsePrice(value: string | null): number | undefined {
@@ -209,16 +202,19 @@ export function parseCatalogQueryFromSearchParams(
   searchParams: URLSearchParams
 ): CatalogQuery {
   const queryText = searchParams.get("q")?.trim() ?? undefined;
-  const categories = parseEnumList(
-    searchParams.get("category"),
+  const categories = parseEnumListFromSearchParams(
+    searchParams,
+    "category",
     CATEGORY_VALUES
   );
-  const frameworks = parseEnumList(
-    searchParams.get("framework"),
+  const frameworks = parseEnumListFromSearchParams(
+    searchParams,
+    "framework",
     FRAMEWORK_VALUES
   );
-  const complexity = parseEnumList(
-    searchParams.get("complexity"),
+  const complexity = parseEnumListFromSearchParams(
+    searchParams,
+    "complexity",
     COMPLEXITY_VALUES
   );
   const minPrice = parsePrice(searchParams.get("minPrice"));
