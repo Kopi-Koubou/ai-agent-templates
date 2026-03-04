@@ -62,4 +62,20 @@ describe("review store", () => {
 
     expect(responded?.sellerResponse).toContain("Thanks");
   });
+
+  test("supports newest, rating, and popular sort modes", () => {
+    const byNewest = listReviews("supportbot-pro", "newest");
+    const byRating = listReviews("supportbot-pro", "rating");
+    const byPopular = listReviews("supportbot-pro", "popular");
+
+    expect(Date.parse(byNewest[0].createdAt)).toBeGreaterThanOrEqual(
+      Date.parse(byNewest[byNewest.length - 1].createdAt)
+    );
+    expect(byRating[0].rating).toBeGreaterThanOrEqual(
+      byRating[byRating.length - 1].rating
+    );
+    expect(byPopular[0].helpfulVotes).toBeGreaterThanOrEqual(
+      byPopular[byPopular.length - 1].helpfulVotes
+    );
+  });
 });

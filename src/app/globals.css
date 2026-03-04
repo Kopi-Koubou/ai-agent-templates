@@ -312,6 +312,28 @@ textarea {
   margin-bottom: 1rem;
 }
 
+.review-sort-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.8rem;
+}
+
+.review-sort-link {
+  border: 1px solid var(--outline);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  padding: 0.18rem 0.55rem;
+  text-decoration: none;
+}
+
+.review-sort-link-active {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--outline));
+  color: var(--accent-soft);
+}
+
 .review-item {
   border: 1px solid var(--outline);
   border-radius: 0.75rem;
@@ -319,11 +341,21 @@ textarea {
 }
 
 .review-item header {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   margin-bottom: 0.4rem;
 }
 
 .review-item p {
   margin: 0.35rem 0;
+}
+
+.verified-pill {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--outline));
+  color: var(--accent-soft);
+  font-size: 0.68rem;
 }
 
 .review-form {

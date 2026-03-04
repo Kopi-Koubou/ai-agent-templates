@@ -7,17 +7,43 @@ import { ReviewForm } from "@/components/review-form";
 import { getTemplateBySlug } from "@/lib/catalog";
 import { isTemplateFavoritedByEmail } from "@/lib/favorite-store";
 import { formatCurrency } from "@/lib/format";
-import { getTemplateReviewSummary, listReviews } from "@/lib/review-store";
+import {
+  getTemplateReviewSummary,
+  listReviews,
+  ReviewSortMode
+} from "@/lib/review-store";
 import { buildTemplatePreview } from "@/lib/template-preview";
+
+const REVIEW_SORT_MODES: ReviewSortMode[] = ["newest", "rating", "popular"];
+
+function resolveReviewSort(rawSortValue: string | undefined): ReviewSortMode {
+  if (!rawSortValue) {
+    return "newest";
+  }
+
+  if (REVIEW_SORT_MODES.includes(rawSortValue as ReviewSortMode)) {
+    return rawSortValue as ReviewSortMode;
+  }
+
+  return "newest";
+}
 
 interface TemplateDetailPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function TemplateDetailPage({
-  params
+  params,
+  searchParams
 }: TemplateDetailPageProps) {
-  const { slug } = await params;
+  const [{ slug }, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams
+  ]);
+  const reviewSort = resolveReviewSort(
+    resolvedSearchParams.reviewSort?.toString()
+  );
   const template = getTemplateBySlug(slug);
 
   if (!template) {
@@ -26,7 +52,7 @@ export default async function TemplateDetailPage({
 
   const preview = buildTemplatePreview(template);
   const reviewSummary = getTemplateReviewSummary(template);
-  const reviews = listReviews(template.slug, "newest");
+  const reviews = listReviews(template.slug, reviewSort);
   const cookieStore = await cookies();
   const buyerEmail = cookieStore.get("agentvault_buyer_email")?.value;
   const initiallySaved =
@@ -142,6 +168,27 @@ export default async function TemplateDetailPage({
           Average rating: {reviewSummary.averageRating.toFixed(1)} ({reviewSummary.reviewCount}{" "}
           total)
         </p>
+        <nav className="review-sort-row" aria-label="Review sorting">
+          <span className="muted">Sort:</span>
+          <Link
+            href={`/templates/${template.slug}?reviewSort=newest#reviews`}
+            className={`review-sort-link ${reviewSort === "newest" ? "review-sort-link-active" : ""}`}
+          >
+            Newest
+          </Link>
+          <Link
+            href={`/templates/${template.slug}?reviewSort=rating#reviews`}
+            className={`review-sort-link ${reviewSort === "rating" ? "review-sort-link-active" : ""}`}
+          >
+            Rating
+          </Link>
+          <Link
+            href={`/templates/${template.slug}?reviewSort=popular#reviews`}
+            className={`review-sort-link ${reviewSort === "popular" ? "review-sort-link-active" : ""}`}
+          >
+            Most helpful
+          </Link>
+        </nav>
         {reviews.length === 0 ? (
           <p className="muted">No reviews yet. Purchasers can submit one below.</p>
         ) : (
@@ -155,6 +202,7 @@ export default async function TemplateDetailPage({
                     by {review.authorLabel} on{" "}
                     {new Date(review.createdAt).toLocaleDateString()}
                   </span>
+                  <span className="pill verified-pill">Verified Purchase</span>
                 </header>
                 <p>{review.comment}</p>
                 {review.sellerResponse ? (
