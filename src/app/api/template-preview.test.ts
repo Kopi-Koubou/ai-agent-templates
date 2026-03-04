@@ -16,6 +16,7 @@ describe("template preview and starter APIs", () => {
         fileTree: string[];
         starterAvailable: boolean;
         screenshotUrls: string[];
+        sampleFiles: Array<{ path: string }>;
       };
     };
 
@@ -23,6 +24,10 @@ describe("template preview and starter APIs", () => {
     expect(payload.preview.starterAvailable).toBe(true);
     expect(payload.preview.screenshotUrls).toHaveLength(3);
     expect(payload.preview.screenshotUrls[0]).toContain("supportbot-pro-overview");
+    expect(payload.preview.sampleFiles).toHaveLength(3);
+    expect(payload.preview.sampleFiles.map((file) => file.path)).toContain(
+      "SOUL.md"
+    );
   });
 
   test("returns starter package metadata for free templates", async () => {

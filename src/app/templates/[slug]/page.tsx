@@ -143,7 +143,7 @@ export default async function TemplateDetailPage({
       <section>
         <h2>Preview files</h2>
         <div className="preview-grid">
-          {template.previewFiles.map((file) => (
+          {preview.sampleFiles.map((file) => (
             <article key={file.path} className="preview-card">
               <h3>{file.path}</h3>
               <p>{file.description}</p>

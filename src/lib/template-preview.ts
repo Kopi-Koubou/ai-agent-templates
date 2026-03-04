@@ -13,6 +13,7 @@ export interface TemplatePreviewContent {
   demoAssetUrl: string;
   screenshotUrls: string[];
   fileTree: string[];
+  sampleFiles: Template["previewFiles"];
   readmePreview: string;
   customizePreview: string;
   versionHistory: TemplateVersionEntry[];
@@ -127,6 +128,7 @@ export function buildTemplatePreview(template: Template): TemplatePreviewContent
     demoAssetUrl: `/demos/${template.slug}.gif`,
     screenshotUrls: buildScreenshotUrls(template),
     fileTree: buildFileTree(template),
+    sampleFiles: template.previewFiles.slice(0, 3),
     readmePreview: buildReadmePreview(template),
     customizePreview: buildCustomizePreview(template),
     versionHistory: getVersionHistory(template),
