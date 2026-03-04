@@ -94,6 +94,19 @@ export default async function TemplatesPage({
         </label>
 
         <label>
+          Minimum Rating
+          <input
+            type="number"
+            name="minRating"
+            min="0"
+            max="5"
+            step="0.1"
+            defaultValue={resolvedSearchParams.minRating?.toString() ?? ""}
+            placeholder="4.5"
+          />
+        </label>
+
+        <label>
           Sort
           <select name="sort" defaultValue={resolvedSearchParams.sort?.toString() ?? "featured"}>
             <option value="featured">Featured</option>

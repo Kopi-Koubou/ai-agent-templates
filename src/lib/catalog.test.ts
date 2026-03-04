@@ -71,9 +71,18 @@ describe("catalog filtering", () => {
     ).toBe(true);
   });
 
+  test("filters by minimum rating", () => {
+    const results = filterTemplates(templates, {
+      minRating: 4.8
+    });
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.every((template) => template.rating >= 4.8)).toBe(true);
+  });
+
   test("parses URL query into catalog query", () => {
     const searchParams = new URLSearchParams(
-      "q=data&category=data&framework=crewai&complexity=advanced&minPrice=79&maxPrice=129&sort=price-desc"
+      "q=data&category=data&framework=crewai&complexity=advanced&minPrice=79&maxPrice=129&minRating=4.5&sort=price-desc"
     );
 
     const query = parseCatalogQueryFromSearchParams(searchParams);
@@ -84,6 +93,7 @@ describe("catalog filtering", () => {
     expect(query.complexity).toEqual(["advanced"]);
     expect(query.minPrice).toBe(7900);
     expect(query.maxPrice).toBe(12900);
+    expect(query.minRating).toBe(4.5);
     expect(query.sort).toBe("price-desc");
   });
 

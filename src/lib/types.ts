@@ -49,5 +49,6 @@ export interface CatalogQuery {
   complexity?: Complexity[];
   minPrice?: number;
   maxPrice?: number;
+  minRating?: number;
   sort?: SortMode;
 }

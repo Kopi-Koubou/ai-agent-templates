@@ -36,6 +36,19 @@ function parsePrice(value: string | null): number | undefined {
   return Math.round(parsed * 100);
 }
 
+function parseRating(value: string | null): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 5) {
+    return undefined;
+  }
+
+  return Number(parsed.toFixed(1));
+}
+
 function includesAny<T extends string>(
   selected: T[] | undefined,
   values: T[]
@@ -115,6 +128,7 @@ export function parseCatalogQueryFromSearchParams(
     | undefined;
   const minPrice = parsePrice(searchParams.get("minPrice"));
   const maxPrice = parsePrice(searchParams.get("maxPrice"));
+  const minRating = parseRating(searchParams.get("minRating"));
   const requestedSort = searchParams.get("sort") as SortMode | null;
 
   const sort =
@@ -139,6 +153,7 @@ export function parseCatalogQueryFromSearchParams(
     complexity,
     minPrice,
     maxPrice,
+    minRating,
     sort
   };
 }
@@ -198,6 +213,10 @@ export function filterTemplates(
     }
 
     if (typeof query.maxPrice === "number" && template.priceCents > query.maxPrice) {
+      return false;
+    }
+
+    if (typeof query.minRating === "number" && template.rating < query.minRating) {
       return false;
     }
 
