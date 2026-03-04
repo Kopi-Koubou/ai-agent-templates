@@ -1,29 +1,33 @@
 # Implementation Report
 
 ## Summary
-Validated the currently scoped feature set against `PRD.md` and the existing implementation/test contracts in this repository.
+Validated the currently scoped feature set for `ai-agent-templates` against the available requirements source (`PRD.md`) and the repository's API/UI test contracts.
 
-- Catalog scope is implemented: natural-language search, category/framework/complexity filters, min/max price filters, minimum rating filter, and featured/newest/popular sorting.
-- Marketplace flow scope is implemented: template previews, starter access for two templates, purchase/download flow with buyer history, favorites flow, verified-purchase reviews, and seller responses.
-- No product code changes were required in this run because scoped functionality is already present and passing.
+- Catalog and discovery behaviors are present: natural-language search, category/framework/complexity filters, price and minimum-rating filters, and supported sort modes.
+- Template preview and conversion flow are present: preview endpoint/UI, starter access for free templates, checkout initiation, purchase recording, and download token flow.
+- Buyer experience scope is present: purchase history/dashboard surfacing, favorites APIs and UI, verified-purchase reviews, and seller review responses.
+- No product code changes were required in this run because the scoped feature set is already implemented and passes all validation gates.
 
 ## Changed Files
-- `implementation-report.md` (updated for this implementation run)
+- `implementation-report.md`
 
 ## Tests Run
 - `npm test`
   - Result: 8 test files passed, 31 tests passed.
 - `npm run build`
   - Result: Next.js production build succeeded.
+- `npm run lint`
+  - Result: no ESLint warnings or errors.
+- `npm run typecheck`
+  - Result: TypeScript check passed (`tsc --noEmit`).
 
 ## Known Risks
-- `design-spec.md` and `tech-spec.md` are not present in `/Users/devl/clawd/projects/ai-agent-templates`; scope reconciliation used `PRD.md` plus code/test behavior.
-- Purchase, favorites, and reviews are backed by in-memory stores and cookie identity, which are non-durable and not production-grade.
-- Checkout and download behavior is mocked and not wired to Stripe, Supabase Auth, storage signing, or transactional email.
-- Demo/screenshot assets are represented by generated paths and may not correspond to real hosted assets.
+- `design-spec.md` and `tech-spec.md` were not found in `/Users/devl/clawd/projects/ai-agent-templates`, so scope validation was based on `PRD.md` and existing test contracts.
+- Checkout, downloads, favorites, and reviews currently rely on in-memory or mock-like behavior, which is not durable for production workloads.
+- Auth, payment finalization, signed artifact delivery, and transactional email behaviors are not wired to production providers in this implementation.
 
 ## Next Steps
-1. Add or restore `design-spec.md` and `tech-spec.md` so implementation can be validated against full intended scope.
-2. Replace in-memory stores with persistent data models (Supabase/Postgres) and real user authentication.
-3. Integrate Stripe checkout plus signed storage URLs for end-to-end purchase/download behavior.
-4. Add integration or E2E coverage for catalog -> purchase -> download -> review workflows.
+1. Restore or add `design-spec.md` and `tech-spec.md` so future implementation runs can validate against explicit scoped requirements.
+2. Replace in-memory stores with persistent backing services (database + authenticated identity) for purchase/favorites/review flows.
+3. Integrate real Stripe checkout confirmation and durable signed download delivery.
+4. Add end-to-end tests that cover catalog -> checkout -> purchase history -> download -> review workflows.
