@@ -1,26 +1,28 @@
 # Implementation Report
 
 ## Summary
-Implemented and validated the current scoped marketplace MVP behavior using the available requirement source (`PRD.md`) plus repository contracts (the requested `design-spec.md` and `tech-spec.md` are not present in this workspace).
+Implemented the current scoped MVP updates against the available spec source (`PRD.md`; `design-spec.md` and `tech-spec.md` are not present in this workspace):
 
-This run included two implementation commits:
-1. Hardened catalog query parsing by validating enum filters and normalizing reversed min/max price bounds.
-2. Extended template preview payloads to include explicit `sampleFiles` (3 pre-purchase file previews), and updated template detail rendering to use that preview contract.
+1. Added mock purchase receipt metadata to the checkout/purchase flow so each purchase now returns a receipt preview tied to the same 30-day download window.
+2. Extended catalog query parsing to support repeated filter params (for example, `?framework=openclaw&framework=crewai`) in addition to comma-separated values.
 
-Also stabilized local validation by updating the typecheck script to avoid incremental cache issues during repeated runs.
+Changes were delivered in small commits:
+- `8446574` - Add mock purchase receipt metadata to checkout flow
+- `7c79cf7` - Support repeated catalog filter params in query parsing
 
 ## Changed Files
-- `package.json`
+- `src/lib/purchase-store.ts`
+- `src/lib/purchase-store.test.ts`
+- `src/app/api/purchase/route.ts`
+- `src/components/checkout-form.tsx`
+- `src/app/api/purchase-download-flow.test.ts`
 - `src/lib/catalog.ts`
 - `src/lib/catalog.test.ts`
-- `src/lib/template-preview.ts`
-- `src/app/api/template-preview.test.ts`
-- `src/app/templates/[slug]/page.tsx`
 - `implementation-report.md`
 
 ## Tests Run
-- `npm run test`
-  - Result: passed (8 test files, 33 tests).
+- `npm test`
+  - Result: passed (8 test files, 34 tests).
 - `npm run build`
   - Result: passed (Next.js production build succeeded).
 - `npm run lint`
@@ -32,10 +34,11 @@ Also stabilized local validation by updating the typecheck script to avoid incre
 - `design-spec.md` and `tech-spec.md` are missing, so implementation scope was derived from `PRD.md` and existing tests/routes.
 - Purchase, favorites, and review state are still in-memory; data resets on process restart.
 - Auth, Stripe checkout, signed artifact delivery, and email receipts remain mocked.
-- Running `build` and `typecheck` concurrently can race on `.next/types`; validations should be executed sequentially.
+- Seller response endpoint has no authorization model yet; any caller can set a response payload in this mock environment.
 
 ## Next Steps
 1. Add/restore `design-spec.md` and `tech-spec.md` so future implementation runs can validate against complete scope artifacts.
 2. Replace in-memory stores with durable persistence (Supabase/Postgres) and real user auth.
-3. Integrate production purchase flow (Stripe), signed download links, and transactional receipt/update emails.
-4. Add end-to-end tests for catalog -> checkout -> dashboard -> download -> review flows.
+3. Integrate real Stripe checkout and transactional email delivery (receipt + update notifications).
+4. Add authorization and audit constraints to seller-response operations.
+5. Add end-to-end tests for catalog -> checkout -> dashboard -> download -> review flows.
