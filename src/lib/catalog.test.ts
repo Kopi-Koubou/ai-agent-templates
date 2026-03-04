@@ -17,6 +17,17 @@ describe("catalog filtering", () => {
     expect(results.every((template) => template.category === "support")).toBe(true);
   });
 
+  test("matches natural language search intent", () => {
+    const results = filterTemplates(templates, {
+      q: "I need an agent that handles refund requests"
+    });
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.some((template) => template.slug === "supportbot-pro")).toBe(
+      true
+    );
+  });
+
   test("filters by framework list", () => {
     const results = filterTemplates(templates, {
       frameworks: ["crewai"]

@@ -10,6 +10,36 @@ import {
 
 const DEFAULT_SORT: SortMode = "featured";
 
+const QUERY_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "agent",
+  "any",
+  "as",
+  "for",
+  "from",
+  "handles",
+  "handling",
+  "help",
+  "i",
+  "in",
+  "is",
+  "it",
+  "me",
+  "my",
+  "need",
+  "of",
+  "please",
+  "request",
+  "requests",
+  "the",
+  "that",
+  "to",
+  "want",
+  "with"
+]);
+
 function parseList(value: string | null): string[] | undefined {
   if (!value) {
     return undefined;
@@ -61,18 +91,44 @@ function includesAny<T extends string>(
   return selected.some((entry) => valueSet.has(entry));
 }
 
+function tokenizeSearchQuery(query: string): string[] {
+  return query
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 1 && !QUERY_STOP_WORDS.has(token));
+}
+
 function matchesQuery(template: Template, query: string | undefined): boolean {
   if (!query) {
     return true;
   }
 
   const normalized = query.toLowerCase();
-  return (
-    template.title.toLowerCase().includes(normalized) ||
-    template.summary.toLowerCase().includes(normalized) ||
-    template.longDescription.toLowerCase().includes(normalized) ||
-    template.tags.some((tag) => tag.toLowerCase().includes(normalized))
-  );
+  const fullText = [
+    template.title,
+    template.summary,
+    template.longDescription,
+    template.category,
+    template.complexity,
+    ...template.frameworks,
+    ...template.tags,
+    ...template.includes
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (fullText.includes(normalized)) {
+    return true;
+  }
+
+  const tokens = tokenizeSearchQuery(query);
+  if (tokens.length === 0) {
+    return true;
+  }
+
+  return tokens.every((token) => fullText.includes(token));
 }
 
 function sortTemplates(list: Template[], sort: SortMode): Template[] {
