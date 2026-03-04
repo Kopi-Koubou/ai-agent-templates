@@ -5,12 +5,54 @@ interface TemplatesPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
+interface FilterOption {
+  value: string;
+  label: string;
+}
+
+const CATEGORY_OPTIONS: FilterOption[] = [
+  { value: "support", label: "Support" },
+  { value: "content", label: "Content" },
+  { value: "data", label: "Data" },
+  { value: "devtools", label: "Devtools" }
+];
+
+const FRAMEWORK_OPTIONS: FilterOption[] = [
+  { value: "claude-code", label: "Claude Code" },
+  { value: "openclaw", label: "OpenClaw" },
+  { value: "langgraph", label: "LangGraph" },
+  { value: "crewai", label: "CrewAI" }
+];
+
+const COMPLEXITY_OPTIONS: FilterOption[] = [
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" }
+];
+
+function readMultiValue(value: string | string[] | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+
+  const entries = Array.isArray(value) ? value : [value];
+  const normalized = entries
+    .flatMap((entry) => entry.split(","))
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+
+  return Array.from(new Set(normalized));
+}
+
 export default async function TemplatesPage({
   searchParams
 }: TemplatesPageProps) {
   const resolvedSearchParams = await searchParams;
   const query = parseCatalogQueryFromObject(resolvedSearchParams);
   const results = listCatalogTemplates(query);
+  const selectedCategories = readMultiValue(resolvedSearchParams.category);
+  const selectedFrameworks = readMultiValue(resolvedSearchParams.framework);
+  const selectedComplexity = readMultiValue(resolvedSearchParams.complexity);
 
   return (
     <section>
@@ -31,43 +73,56 @@ export default async function TemplatesPage({
           />
         </label>
 
-        <label>
-          Category
-          <select name="category" defaultValue={resolvedSearchParams.category?.toString() ?? ""}>
-            <option value="">All</option>
-            <option value="support">Support</option>
-            <option value="content">Content</option>
-            <option value="data">Data</option>
-            <option value="devtools">Devtools</option>
-          </select>
-        </label>
+        <fieldset className="filter-group">
+          <legend>Category</legend>
+          <div className="checkbox-list">
+            {CATEGORY_OPTIONS.map((option) => (
+              <label key={option.value} className="checkbox-option">
+                <input
+                  type="checkbox"
+                  name="category"
+                  value={option.value}
+                  defaultChecked={selectedCategories.includes(option.value)}
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-        <label>
-          Framework
-          <select
-            name="framework"
-            defaultValue={resolvedSearchParams.framework?.toString() ?? ""}
-          >
-            <option value="">All</option>
-            <option value="claude-code">Claude Code</option>
-            <option value="openclaw">OpenClaw</option>
-            <option value="langgraph">LangGraph</option>
-            <option value="crewai">CrewAI</option>
-          </select>
-        </label>
+        <fieldset className="filter-group">
+          <legend>Framework</legend>
+          <div className="checkbox-list">
+            {FRAMEWORK_OPTIONS.map((option) => (
+              <label key={option.value} className="checkbox-option">
+                <input
+                  type="checkbox"
+                  name="framework"
+                  value={option.value}
+                  defaultChecked={selectedFrameworks.includes(option.value)}
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-        <label>
-          Complexity
-          <select
-            name="complexity"
-            defaultValue={resolvedSearchParams.complexity?.toString() ?? ""}
-          >
-            <option value="">All</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </label>
+        <fieldset className="filter-group">
+          <legend>Complexity</legend>
+          <div className="checkbox-list">
+            {COMPLEXITY_OPTIONS.map((option) => (
+              <label key={option.value} className="checkbox-option">
+                <input
+                  type="checkbox"
+                  name="complexity"
+                  value={option.value}
+                  defaultChecked={selectedComplexity.includes(option.value)}
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         <label>
           Min Price (USD)

@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import { templates } from "@/data/templates";
 import {
   filterTemplates,
+  parseCatalogQueryFromObject,
   parseCatalogQueryFromSearchParams
 } from "@/lib/catalog";
 
@@ -123,6 +124,18 @@ describe("catalog filtering", () => {
 
     expect(query.frameworks).toEqual(["openclaw", "crewai"]);
     expect(query.categories).toEqual(["support", "data"]);
+  });
+
+  test("parses repeated enum filters from object arrays", () => {
+    const query = parseCatalogQueryFromObject({
+      category: ["support", "data"],
+      framework: ["openclaw", "crewai"],
+      complexity: ["intermediate", "advanced"]
+    });
+
+    expect(query.categories).toEqual(["support", "data"]);
+    expect(query.frameworks).toEqual(["openclaw", "crewai"]);
+    expect(query.complexity).toEqual(["intermediate", "advanced"]);
   });
 
   test("ignores invalid enum filters", () => {
