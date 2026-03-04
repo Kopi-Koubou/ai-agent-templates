@@ -34,6 +34,19 @@ describe("purchase store", () => {
 
     expect(updated?.downloadCount).toBe(1);
     expect(updated?.lastDownloadedAt).toBeDefined();
+    expect(updated?.downloadHistory).toHaveLength(1);
+  });
+
+  test("caps download history to recent entries", () => {
+    const purchase = createPurchase("supportbot-pro", "builder@example.com");
+    let updated = recordDownload(purchase.token);
+
+    for (let index = 0; index < 12; index += 1) {
+      updated = recordDownload(purchase.token);
+    }
+
+    expect(updated?.downloadCount).toBe(13);
+    expect(updated?.downloadHistory).toHaveLength(10);
   });
 
   test("lists purchases by buyer email", () => {

@@ -52,7 +52,27 @@ export default async function DashboardPage() {
                 <div className="purchase-meta">
                   <p>Purchased: {new Date(purchase.purchasedAt).toLocaleString()}</p>
                   <p>Downloads: {purchase.downloadCount}</p>
+                  {purchase.lastDownloadedAt ? (
+                    <p>
+                      Last download:{" "}
+                      {new Date(purchase.lastDownloadedAt).toLocaleString()}
+                    </p>
+                  ) : (
+                    <p className="muted">No downloads yet</p>
+                  )}
                   <p>Expires: {new Date(purchase.expiresAt).toLocaleDateString()}</p>
+                  {purchase.downloadHistory.length > 0 ? (
+                    <div className="download-history">
+                      <p className="muted">Recent download activity:</p>
+                      <ul>
+                        {purchase.downloadHistory.map((downloadedAt) => (
+                          <li key={`${purchase.token}:${downloadedAt}`}>
+                            {new Date(downloadedAt).toLocaleString()}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                   {(() => {
                     const template = getTemplateBySlug(purchase.templateSlug);
                     if (!template || template.version === purchase.purchasedVersion) {

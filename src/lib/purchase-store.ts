@@ -12,6 +12,7 @@ export interface PurchaseRecord {
   purchasedAt: string;
   expiresAt: string;
   downloadCount: number;
+  downloadHistory: string[];
   receiptId: string;
   receiptSentAt: string;
   lastDownloadedAt?: string;
@@ -29,6 +30,7 @@ export interface PurchaseReceiptPreview {
 }
 
 const purchases = new Map<string, PurchaseRecord>();
+const MAX_DOWNLOAD_HISTORY_ENTRIES = 10;
 
 function isExpired(record: PurchaseRecord): boolean {
   return Date.parse(record.expiresAt) < Date.now();
@@ -71,6 +73,7 @@ export function createPurchase(templateSlug: string, email: string): PurchaseRec
     purchasedAt: new Date(now).toISOString(),
     expiresAt: new Date(now + PURCHASE_TTL_MS).toISOString(),
     downloadCount: 0,
+    downloadHistory: [],
     receiptId: `rcpt_${crypto.randomUUID().slice(0, 10)}`,
     receiptSentAt
   };
@@ -119,10 +122,16 @@ export function recordDownload(token: string): PurchaseRecord | null {
     return null;
   }
 
+  const downloadedAt = new Date().toISOString();
+
   const updatedRecord: PurchaseRecord = {
     ...purchase,
     downloadCount: purchase.downloadCount + 1,
-    lastDownloadedAt: new Date().toISOString()
+    lastDownloadedAt: downloadedAt,
+    downloadHistory: [downloadedAt, ...purchase.downloadHistory].slice(
+      0,
+      MAX_DOWNLOAD_HISTORY_ENTRIES
+    )
   };
 
   purchases.set(token, updatedRecord);

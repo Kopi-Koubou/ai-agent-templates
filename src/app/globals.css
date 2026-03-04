@@ -480,6 +480,27 @@ textarea {
   gap: 0.3rem;
 }
 
+.download-history {
+  border-top: 1px solid var(--outline);
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+}
+
+.download-history p {
+  margin: 0 0 0.3rem;
+}
+
+.download-history ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.download-history li {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-bottom: 0.2rem;
+}
+
 .update-notice {
   color: var(--accent-soft);
   font-weight: 600;

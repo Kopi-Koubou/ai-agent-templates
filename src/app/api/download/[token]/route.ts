@@ -24,7 +24,9 @@ export async function GET(
     template: purchase.templateTitle,
     purchasedAt: purchase.purchasedAt,
     expiresAt: purchase.expiresAt,
+    downloadedAt: purchase.lastDownloadedAt,
     downloadCount: purchase.downloadCount,
+    downloadHistory: purchase.downloadHistory,
     downloadUrl: `/downloads/${purchase.templateSlug}.zip`,
     downloadHint:
       "In production this endpoint returns a signed Supabase storage URL for a template ZIP package."

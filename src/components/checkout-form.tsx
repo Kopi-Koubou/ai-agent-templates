@@ -30,7 +30,9 @@ interface DownloadResponse {
   template: string;
   purchasedAt: string;
   expiresAt: string;
+  downloadedAt?: string;
   downloadCount: number;
+  downloadHistory: string[];
   downloadUrl: string;
   downloadHint: string;
 }
@@ -174,8 +176,12 @@ export function CheckoutForm({ templates }: CheckoutFormProps) {
           <h3>Download ready</h3>
           <p>Template: {download.template}</p>
           <p>Purchased at: {new Date(download.purchasedAt).toLocaleString()}</p>
+          {download.downloadedAt ? (
+            <p>Downloaded at: {new Date(download.downloadedAt).toLocaleString()}</p>
+          ) : null}
           <p>Expires: {new Date(download.expiresAt).toLocaleString()}</p>
           <p>Downloads used: {download.downloadCount}</p>
+          <p>Recent download events: {download.downloadHistory.length}</p>
           <p>
             Asset path: <code>{download.downloadUrl}</code>
           </p>

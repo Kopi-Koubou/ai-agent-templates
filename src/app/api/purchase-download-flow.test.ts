@@ -25,6 +25,8 @@ interface PurchaseResponse {
 interface DownloadResponse {
   template: string;
   downloadCount: number;
+  downloadedAt?: string;
+  downloadHistory: string[];
 }
 
 interface PurchasesResponse {
@@ -68,6 +70,8 @@ describe("purchase and download API flow", () => {
     const download = (await downloadResponse.json()) as DownloadResponse;
     expect(download.template).toBe("SupportBot Pro");
     expect(download.downloadCount).toBe(1);
+    expect(download.downloadedAt).toBeDefined();
+    expect(download.downloadHistory).toHaveLength(1);
 
     const historyResponse = await purchasesRoute(
       new Request("http://localhost/api/purchases", {
