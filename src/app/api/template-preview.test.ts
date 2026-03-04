@@ -12,11 +12,17 @@ describe("template preview and starter APIs", () => {
 
     expect(response.status).toBe(200);
     const payload = (await response.json()) as {
-      preview: { fileTree: string[]; starterAvailable: boolean };
+      preview: {
+        fileTree: string[];
+        starterAvailable: boolean;
+        screenshotUrls: string[];
+      };
     };
 
     expect(payload.preview.fileTree).toContain("README.md");
     expect(payload.preview.starterAvailable).toBe(true);
+    expect(payload.preview.screenshotUrls).toHaveLength(3);
+    expect(payload.preview.screenshotUrls[0]).toContain("supportbot-pro-overview");
   });
 
   test("returns starter package metadata for free templates", async () => {

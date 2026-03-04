@@ -108,6 +108,18 @@ export default async function TemplateDetailPage({
       </section>
 
       <section className="detail-panel">
+        <h2>Screenshots</h2>
+        <div className="screenshot-grid">
+          {preview.screenshotUrls.map((url, index) => (
+            <article key={url} className="screenshot-card">
+              <p className="screenshot-label">Screenshot {index + 1}</p>
+              <code>{url}</code>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="detail-panel">
         <h2>Version history</h2>
         <ul>
           {preview.versionHistory.map((entry) => (

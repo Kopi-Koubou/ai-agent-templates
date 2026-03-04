@@ -11,6 +11,7 @@ export interface TemplateVersionEntry {
 export interface TemplatePreviewContent {
   demoAssetType: "gif";
   demoAssetUrl: string;
+  screenshotUrls: string[];
   fileTree: string[];
   readmePreview: string;
   customizePreview: string;
@@ -108,6 +109,14 @@ function buildFileTree(template: Template): string[] {
   return Array.from(new Set([...coreFiles, ...previewPaths]));
 }
 
+function buildScreenshotUrls(template: Template): string[] {
+  return [
+    `/screenshots/${template.slug}-overview.png`,
+    `/screenshots/${template.slug}-tools.png`,
+    `/screenshots/${template.slug}-results.png`
+  ];
+}
+
 export function isStarterTemplateAvailable(templateSlug: string): boolean {
   return STARTER_TEMPLATE_SLUGS.has(templateSlug);
 }
@@ -116,6 +125,7 @@ export function buildTemplatePreview(template: Template): TemplatePreviewContent
   return {
     demoAssetType: "gif",
     demoAssetUrl: `/demos/${template.slug}.gif`,
+    screenshotUrls: buildScreenshotUrls(template),
     fileTree: buildFileTree(template),
     readmePreview: buildReadmePreview(template),
     customizePreview: buildCustomizePreview(template),
