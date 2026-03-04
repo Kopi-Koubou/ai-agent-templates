@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { getTemplateBySlug } from "@/lib/catalog";
 import { listFavoritesByEmail } from "@/lib/favorite-store";
+import { buildBuyerProfile } from "@/lib/profile";
 import { listPurchasesByEmail } from "@/lib/purchase-store";
 
 const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
@@ -17,9 +18,11 @@ export default async function DashboardPage() {
   }
 
   const purchases = listPurchasesByEmail(buyerEmail);
-  const favoriteTemplates = listFavoritesByEmail(buyerEmail)
+  const favoriteSlugs = listFavoritesByEmail(buyerEmail);
+  const favoriteTemplates = favoriteSlugs
     .map((slug) => getTemplateBySlug(slug))
     .filter((template) => template !== undefined);
+  const profile = buildBuyerProfile(buyerEmail, purchases, favoriteSlugs);
 
   return (
     <section>
@@ -31,6 +34,21 @@ export default async function DashboardPage() {
           Purchases are currently mock records stored in memory.
         </p>
       </header>
+
+      <section className="dashboard-panel">
+        <h2>Profile</h2>
+        <div className="purchase-meta">
+          <p>Email: {profile.email}</p>
+          <p>Display name: {profile.displayName}</p>
+          {profile.joinedAt ? (
+            <p>Member since: {new Date(profile.joinedAt).toLocaleString()}</p>
+          ) : (
+            <p className="muted">No purchase history yet</p>
+          )}
+          <p>Purchases tracked: {profile.purchasesCount}</p>
+          <p>Saved templates: {profile.favoritesCount}</p>
+        </div>
+      </section>
 
       {purchases.length === 0 ? (
         <section className="dashboard-panel">
