@@ -10,6 +10,26 @@ import {
 
 const DEFAULT_SORT: SortMode = "featured";
 
+const CATEGORY_VALUES = new Set<TemplateCategory>([
+  "support",
+  "content",
+  "data",
+  "devtools"
+]);
+
+const FRAMEWORK_VALUES = new Set<TemplateFramework>([
+  "openclaw",
+  "claude-code",
+  "langgraph",
+  "crewai"
+]);
+
+const COMPLEXITY_VALUES = new Set<Complexity>([
+  "beginner",
+  "intermediate",
+  "advanced"
+]);
+
 const QUERY_STOP_WORDS = new Set([
   "a",
   "an",
@@ -51,6 +71,22 @@ function parseList(value: string | null): string[] | undefined {
     .filter(Boolean);
 
   return items.length > 0 ? items : undefined;
+}
+
+function parseEnumList<T extends string>(
+  value: string | null,
+  allowedValues: Set<T>
+): T[] | undefined {
+  const parsed = parseList(value);
+  if (!parsed) {
+    return undefined;
+  }
+
+  const filtered = parsed.filter((item): item is T =>
+    allowedValues.has(item as T)
+  );
+
+  return filtered.length > 0 ? filtered : undefined;
 }
 
 function parsePrice(value: string | null): number | undefined {
@@ -173,15 +209,18 @@ export function parseCatalogQueryFromSearchParams(
   searchParams: URLSearchParams
 ): CatalogQuery {
   const queryText = searchParams.get("q")?.trim() ?? undefined;
-  const categories = parseList(searchParams.get("category")) as
-    | TemplateCategory[]
-    | undefined;
-  const frameworks = parseList(searchParams.get("framework")) as
-    | TemplateFramework[]
-    | undefined;
-  const complexity = parseList(searchParams.get("complexity")) as
-    | Complexity[]
-    | undefined;
+  const categories = parseEnumList(
+    searchParams.get("category"),
+    CATEGORY_VALUES
+  );
+  const frameworks = parseEnumList(
+    searchParams.get("framework"),
+    FRAMEWORK_VALUES
+  );
+  const complexity = parseEnumList(
+    searchParams.get("complexity"),
+    COMPLEXITY_VALUES
+  );
   const minPrice = parsePrice(searchParams.get("minPrice"));
   const maxPrice = parsePrice(searchParams.get("maxPrice"));
   const minRating = parseRating(searchParams.get("minRating"));
@@ -202,13 +241,22 @@ export function parseCatalogQueryFromSearchParams(
       ? requestedSort
       : DEFAULT_SORT;
 
+  const resolvedMinPrice =
+    typeof minPrice === "number" && typeof maxPrice === "number"
+      ? Math.min(minPrice, maxPrice)
+      : minPrice;
+  const resolvedMaxPrice =
+    typeof minPrice === "number" && typeof maxPrice === "number"
+      ? Math.max(minPrice, maxPrice)
+      : maxPrice;
+
   return {
     q: queryText,
     categories,
     frameworks,
     complexity,
-    minPrice,
-    maxPrice,
+    minPrice: resolvedMinPrice,
+    maxPrice: resolvedMaxPrice,
     minRating,
     sort
   };

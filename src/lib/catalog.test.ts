@@ -114,4 +114,23 @@ describe("catalog filtering", () => {
 
     expect(query.sort).toBe("popular");
   });
+
+  test("ignores invalid enum filters", () => {
+    const searchParams = new URLSearchParams(
+      "category=invalid&framework=unknown&complexity=nope"
+    );
+    const query = parseCatalogQueryFromSearchParams(searchParams);
+
+    expect(query.categories).toBeUndefined();
+    expect(query.frameworks).toBeUndefined();
+    expect(query.complexity).toBeUndefined();
+  });
+
+  test("normalizes reversed price range bounds", () => {
+    const searchParams = new URLSearchParams("minPrice=199&maxPrice=79");
+    const query = parseCatalogQueryFromSearchParams(searchParams);
+
+    expect(query.minPrice).toBe(7900);
+    expect(query.maxPrice).toBe(19900);
+  });
 });
