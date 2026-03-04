@@ -20,6 +20,8 @@ describe("purchase store", () => {
     expect(purchase.token.length).toBeGreaterThan(20);
     expect(purchase.purchasedVersion).toBe("1.2.0");
     expect(purchase.downloadCount).toBe(0);
+    expect(purchase.receiptId).toMatch(/^rcpt_/);
+    expect(purchase.receiptSentAt).toBeDefined();
 
     const retrieved = getPurchaseByToken(purchase.token);
     expect(retrieved?.templateSlug).toBe("supportbot-pro");

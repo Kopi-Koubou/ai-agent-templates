@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { createPurchase, PURCHASE_TTL_MS } from "@/lib/purchase-store";
+import {
+  buildPurchaseReceiptPreview,
+  createPurchase,
+  PURCHASE_TTL_MS
+} from "@/lib/purchase-store";
 
 const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
 
@@ -29,7 +33,8 @@ export async function POST(request: Request): Promise<Response> {
       token: purchase.token,
       expiresAt: purchase.expiresAt,
       downloadPath: `/api/download/${purchase.token}`,
-      dashboardPath: "/dashboard"
+      dashboardPath: "/dashboard",
+      receipt: buildPurchaseReceiptPreview(purchase)
     });
 
     response.cookies.set(BUYER_EMAIL_COOKIE, purchase.email, {

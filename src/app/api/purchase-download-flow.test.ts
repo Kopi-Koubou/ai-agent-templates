@@ -9,6 +9,17 @@ interface PurchaseResponse {
   token: string;
   orderId: string;
   downloadPath: string;
+  expiresAt: string;
+  receipt: {
+    id: string;
+    to: string;
+    sentAt: string;
+    subject: string;
+    delivery: "mock-queued";
+    downloadPath: string;
+    expiresAt: string;
+    previewText: string;
+  };
 }
 
 interface DownloadResponse {
@@ -43,6 +54,10 @@ describe("purchase and download API flow", () => {
     const purchase = (await createResponse.json()) as PurchaseResponse;
     expect(purchase.orderId).toMatch(/^ord_/);
     expect(purchase.downloadPath).toBe(`/api/download/${purchase.token}`);
+    expect(purchase.receipt.id).toMatch(/^rcpt_/);
+    expect(purchase.receipt.to).toBe(buyerEmail);
+    expect(purchase.receipt.downloadPath).toBe(purchase.downloadPath);
+    expect(purchase.receipt.expiresAt).toBe(purchase.expiresAt);
 
     const downloadResponse = await downloadRoute(
       new Request(`http://localhost/api/download/${purchase.token}`),

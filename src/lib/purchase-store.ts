@@ -12,13 +12,42 @@ export interface PurchaseRecord {
   purchasedAt: string;
   expiresAt: string;
   downloadCount: number;
+  receiptId: string;
+  receiptSentAt: string;
   lastDownloadedAt?: string;
+}
+
+export interface PurchaseReceiptPreview {
+  id: string;
+  to: string;
+  sentAt: string;
+  subject: string;
+  delivery: "mock-queued";
+  downloadPath: string;
+  expiresAt: string;
+  previewText: string;
 }
 
 const purchases = new Map<string, PurchaseRecord>();
 
 function isExpired(record: PurchaseRecord): boolean {
   return Date.parse(record.expiresAt) < Date.now();
+}
+
+export function buildPurchaseReceiptPreview(
+  purchase: PurchaseRecord
+): PurchaseReceiptPreview {
+  return {
+    id: purchase.receiptId,
+    to: purchase.email,
+    sentAt: purchase.receiptSentAt,
+    subject: `Your AgentVault receipt for ${purchase.templateTitle}`,
+    delivery: "mock-queued",
+    downloadPath: `/api/download/${purchase.token}`,
+    expiresAt: purchase.expiresAt,
+    previewText:
+      "This mock receipt confirms your purchase and includes a 30-day download link."
+  };
 }
 
 export function createPurchase(templateSlug: string, email: string): PurchaseRecord {
@@ -30,6 +59,7 @@ export function createPurchase(templateSlug: string, email: string): PurchaseRec
   const now = Date.now();
   const token = crypto.randomUUID().replace(/-/g, "");
   const orderId = `ord_${crypto.randomUUID().slice(0, 8)}`;
+  const receiptSentAt = new Date(now).toISOString();
 
   const record: PurchaseRecord = {
     token,
@@ -40,7 +70,9 @@ export function createPurchase(templateSlug: string, email: string): PurchaseRec
     email: email.trim().toLowerCase(),
     purchasedAt: new Date(now).toISOString(),
     expiresAt: new Date(now + PURCHASE_TTL_MS).toISOString(),
-    downloadCount: 0
+    downloadCount: 0,
+    receiptId: `rcpt_${crypto.randomUUID().slice(0, 10)}`,
+    receiptSentAt
   };
 
   purchases.set(token, record);

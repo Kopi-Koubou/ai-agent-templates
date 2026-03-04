@@ -14,6 +14,16 @@ interface PurchaseResponse {
   token: string;
   downloadPath: string;
   expiresAt: string;
+  receipt: {
+    id: string;
+    to: string;
+    sentAt: string;
+    subject: string;
+    delivery: "mock-queued";
+    downloadPath: string;
+    expiresAt: string;
+    previewText: string;
+  };
 }
 
 interface DownloadResponse {
@@ -141,6 +151,13 @@ export function CheckoutForm({ templates }: CheckoutFormProps) {
             Token: <code>{purchase.token}</code>
           </p>
           <p>Expires: {new Date(purchase.expiresAt).toLocaleString()}</p>
+          <p>
+            Receipt queued: <code>{purchase.receipt.id}</code>
+          </p>
+          <p className="muted">
+            Receipt to {purchase.receipt.to}: {purchase.receipt.subject}
+          </p>
+          <p className="muted">{purchase.receipt.previewText}</p>
           <div className="checkout-actions">
             <button type="button" onClick={handleDownload}>
               Validate download link
