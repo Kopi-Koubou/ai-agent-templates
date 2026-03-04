@@ -70,6 +70,30 @@ export default async function TemplatesPage({
         </label>
 
         <label>
+          Min Price (USD)
+          <input
+            type="number"
+            name="minPrice"
+            min="0"
+            step="1"
+            defaultValue={resolvedSearchParams.minPrice?.toString() ?? ""}
+            placeholder="29"
+          />
+        </label>
+
+        <label>
+          Max Price (USD)
+          <input
+            type="number"
+            name="maxPrice"
+            min="0"
+            step="1"
+            defaultValue={resolvedSearchParams.maxPrice?.toString() ?? ""}
+            placeholder="199"
+          />
+        </label>
+
+        <label>
           Sort
           <select name="sort" defaultValue={resolvedSearchParams.sort?.toString() ?? "featured"}>
             <option value="featured">Featured</option>
