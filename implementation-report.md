@@ -1,43 +1,54 @@
 # Implementation Report
 
 ## Summary
-Implemented the current scoped increment using available specs (`PRD.md`; `design-spec.md` and `tech-spec.md` are not present in this workspace):
+Implemented the current scoped feature increment based on `PRD.md` and shipped in two small commits (the requested `design-spec.md` and `tech-spec.md` are not present in this workspace):
 
-1. Added authenticated download-link renewal for expired purchase tokens while keeping unauthenticated expired links invalid.
-2. Preserved 30-day TTL behavior per token, but allowed verified buyers to generate a fresh token and continue re-download from dashboard flows.
-3. Updated dashboard and checkout surfaces to reflect renewed links and refreshed download-token metadata.
-4. Added regression coverage for purchase-store token refresh and full API flow (expired link -> authenticated renewal -> updated purchase history token).
+1. Added a template update-notification flow:
+   - New version comparison and notification derivation helpers.
+   - Authenticated updates API (`GET /api/updates`).
+   - Dashboard section that surfaces available template upgrades.
+   - Regression tests for unit + API flow.
+2. Added explicit license metadata across purchase and download flows:
+   - Per-user, unlimited-project, non-transferable license preview generator.
+   - License payload included in purchase and download APIs.
+   - Dashboard and checkout surfaces now display license details.
+   - Regression tests updated for license assertions.
 
-Changes were delivered in small commits:
-- `484b68c` - Refresh expired download links for authenticated buyers
-- `1471965` - Expose refreshed download links in dashboard and checkout
+Delivered as small commits:
+- `9d97acf` - Add template update notifications flow
+- `c5ba5db` - Expose purchase license metadata across flows
 
 ## Changed Files
+- `src/lib/update-notifications.ts`
+- `src/lib/update-notifications.test.ts`
+- `src/app/api/updates/route.ts`
+- `src/app/api/updates-flow.test.ts`
+- `src/app/dashboard/page.tsx`
+- `src/lib/purchase-store.ts`
+- `src/lib/purchase-store.test.ts`
+- `src/app/api/purchase/route.ts`
 - `src/app/api/download/[token]/route.ts`
 - `src/app/api/purchase-download-flow.test.ts`
-- `src/app/dashboard/page.tsx`
 - `src/components/checkout-form.tsx`
-- `src/lib/purchase-store.test.ts`
-- `src/lib/purchase-store.ts`
 - `implementation-report.md`
 
 ## Tests Run
 - `NODE_OPTIONS=--use-bundled-ca npm test`
-  - Result: passed (12 test files, 46 tests).
+  - Result: passed (14 test files, 51 tests).
 - `NODE_OPTIONS=--use-bundled-ca npm run build`
   - Result: passed (Next.js production build succeeded).
 - `npm run typecheck`
   - Result: passed (`tsc --noEmit --incremental false`).
 
 ## Known Risks
-- `design-spec.md` and `tech-spec.md` are missing from this workspace, so scope validation was based on `PRD.md` and existing implementation/tests.
-- Data stores are still in-memory (purchases, favorites, reviews), so all state resets on process restart.
-- Auth, payment, download delivery, and receipt email are still mocked (cookie identity + simulated receipt metadata).
-- Download-link renewal is cookie-authenticated in-app behavior; it is not yet integrated with durable auth/session revocation and audit trails.
+- `design-spec.md` and `tech-spec.md` are missing in this repo, so scope interpretation was derived from `PRD.md` and current code/test patterns.
+- All stores remain in-memory (purchases, favorites, reviews, update notifications as derived state), so state resets on process restart.
+- Auth and checkout remain mocked (cookie identity + mock purchase/receipt payloads), not Supabase Auth/Stripe production flows.
+- Template update notifications are derived at read time from current template versions vs. stored purchased version; there is no persistent read/unread notification state.
 
 ## Next Steps
-1. Restore/add `design-spec.md` and `tech-spec.md` to validate the exact scoped acceptance criteria.
-2. Persist purchase/favorite/review data in Supabase/Postgres and move token-renewal logic to durable storage with audit metadata.
-3. Replace cookie-only mock identity with Supabase Auth (email + GitHub).
-4. Integrate Stripe checkout and signed storage URLs for production downloads.
-5. Add E2E coverage for long-lived purchase history and authenticated download-link renewal after token expiry.
+1. Restore/add `design-spec.md` and `tech-spec.md` so implementation can be verified against exact acceptance criteria.
+2. Persist purchases/reviews/favorites to Supabase/Postgres and add durable notification state (read/unread, timestamps).
+3. Replace cookie-based identity with Supabase Auth (GitHub + email) and enforce authorization boundaries server-side.
+4. Replace mock purchase/download internals with Stripe checkout + signed storage URLs + transactional email delivery.
+5. Add E2E tests for notification visibility, license metadata consistency, and dashboard update/renewal flows.
