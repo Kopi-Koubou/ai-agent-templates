@@ -9,6 +9,7 @@ import {
   isPurchaseDownloadExpired,
   listPurchasesByEmail
 } from "@/lib/purchase-store";
+import { listTemplateUpdateNotifications } from "@/lib/update-notifications";
 
 const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
 
@@ -21,6 +22,7 @@ export default async function DashboardPage() {
   }
 
   const purchases = listPurchasesByEmail(buyerEmail);
+  const updateNotifications = listTemplateUpdateNotifications(buyerEmail);
   const favoriteSlugs = listFavoritesByEmail(buyerEmail);
   const favoriteTemplates = favoriteSlugs
     .map((slug) => getTemplateBySlug(slug))
@@ -136,6 +138,41 @@ export default async function DashboardPage() {
           </div>
         </section>
       )}
+
+      <section className="dashboard-panel">
+        <h2>Template updates</h2>
+        {updateNotifications.length === 0 ? (
+          <p className="muted">No new template updates for your purchases.</p>
+        ) : (
+          <div className="purchase-list">
+            {updateNotifications.map((notification) => (
+              <article key={notification.id} className="purchase-item">
+                <div>
+                  <h3>{notification.templateTitle}</h3>
+                  <p className="muted">Update available for a purchased template</p>
+                </div>
+                <div className="purchase-meta">
+                  <p>
+                    Version update: {notification.purchasedVersion} {"->"}{" "}
+                    {notification.latestVersion}
+                  </p>
+                  <p>
+                    Released:{" "}
+                    {new Date(notification.latestReleasedAt).toLocaleDateString()}
+                  </p>
+                  <p className="muted">{notification.latestReleaseNotes}</p>
+                  <Link
+                    className="inline-link"
+                    href={`/templates/${notification.templateSlug}`}
+                  >
+                    View latest version details
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className="dashboard-panel">
         <h2>Saved templates</h2>
