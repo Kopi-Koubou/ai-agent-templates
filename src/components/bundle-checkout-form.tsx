@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
+import { resolveInitialBundleSlug } from "@/lib/checkout";
 import { formatCurrency } from "@/lib/format";
 import { BundleDetail } from "@/lib/bundles";
 
@@ -31,25 +32,12 @@ interface BundlePurchaseResponse {
   }>;
 }
 
-function getInitialBundleSlug(
-  bundles: BundleDetail[],
-  initialBundleSlug?: string
-): string {
-  if (!initialBundleSlug) {
-    return bundles[0]?.slug ?? "";
-  }
-
-  return bundles.some((bundle) => bundle.slug === initialBundleSlug)
-    ? initialBundleSlug
-    : (bundles[0]?.slug ?? "");
-}
-
 export function BundleCheckoutForm({
   bundles,
   initialBundleSlug
 }: BundleCheckoutFormProps) {
-  const [bundleSlug, setBundleSlug] = useState(
-    getInitialBundleSlug(bundles, initialBundleSlug)
+  const [bundleSlug, setBundleSlug] = useState(() =>
+    resolveInitialBundleSlug(bundles, initialBundleSlug)
   );
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

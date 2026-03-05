@@ -38,9 +38,14 @@ export function TemplateCard({ template }: TemplateCardProps) {
         <div className="rating">{template.rating.toFixed(1)} ({template.reviewCount})</div>
       </div>
 
-      <Link className="card-link" href={`/templates/${template.slug}`}>
-        View template
-      </Link>
+      <div className="card-actions">
+        <Link className="card-link" href={`/templates/${template.slug}`}>
+          View template
+        </Link>
+        <Link className="btn-ghost" href={`/checkout?template=${template.slug}`}>
+          Buy now
+        </Link>
+      </div>
     </article>
   );
 }

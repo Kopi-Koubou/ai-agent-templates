@@ -16,6 +16,10 @@ export default function HomePage() {
     isStarterTemplateAvailable(template.slug)
   ).length;
   const featuredBundle = listPublishedBundleDetails()[0];
+  const heroCheckoutHref =
+    featuredTemplates[0] !== undefined
+      ? `/checkout?template=${featuredTemplates[0].slug}`
+      : "/checkout";
 
   return (
     <section className="home-grid">
@@ -30,8 +34,8 @@ export default function HomePage() {
           <Link className="btn-primary" href="/templates">
             Browse templates
           </Link>
-          <Link className="btn-ghost" href="/checkout">
-            Test checkout flow
+          <Link className="btn-ghost" href={heroCheckoutHref}>
+            Start checkout
           </Link>
         </div>
       </div>

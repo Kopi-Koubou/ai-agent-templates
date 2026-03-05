@@ -194,6 +194,14 @@ button:hover {
   text-decoration: none;
 }
 
+.card-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: space-between;
+}
+
 .rating,
 .muted {
   color: var(--text-muted);
