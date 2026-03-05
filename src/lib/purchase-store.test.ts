@@ -61,6 +61,18 @@ describe("purchase store", () => {
     );
   });
 
+  test("keeps expired purchases in history while download token expires", () => {
+    const purchase = createPurchase("supportbot-pro", "builder@example.com");
+    purchase.expiresAt = "2000-01-01T00:00:00.000Z";
+
+    expect(getPurchaseByToken(purchase.token)).toBeNull();
+    expect(recordDownload(purchase.token)).toBeNull();
+
+    const history = listPurchasesByEmail("builder@example.com");
+    expect(history).toHaveLength(1);
+    expect(history[0]?.token).toBe(purchase.token);
+  });
+
   test("throws when template slug is invalid", () => {
     expect(() => createPurchase("missing-template", "x@example.com")).toThrow(
       /Template not found/

@@ -36,6 +36,10 @@ function isExpired(record: PurchaseRecord): boolean {
   return Date.parse(record.expiresAt) < Date.now();
 }
 
+export function isPurchaseDownloadExpired(record: PurchaseRecord): boolean {
+  return isExpired(record);
+}
+
 export function buildPurchaseReceiptPreview(
   purchase: PurchaseRecord
 ): PurchaseReceiptPreview {
@@ -89,7 +93,6 @@ export function getPurchaseByToken(token: string): PurchaseRecord | null {
   }
 
   if (isExpired(record)) {
-    purchases.delete(token);
     return null;
   }
 
@@ -100,12 +103,7 @@ export function listPurchasesByEmail(email: string): PurchaseRecord[] {
   const normalizedEmail = email.trim().toLowerCase();
   const records: PurchaseRecord[] = [];
 
-  for (const [token, purchase] of purchases.entries()) {
-    if (isExpired(purchase)) {
-      purchases.delete(token);
-      continue;
-    }
-
+  for (const purchase of purchases.values()) {
     if (purchase.email === normalizedEmail) {
       records.push(purchase);
     }

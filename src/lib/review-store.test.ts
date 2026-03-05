@@ -25,7 +25,10 @@ describe("review store", () => {
   test("requires purchase verification before review", () => {
     expect(canReviewTemplate("builder@example.com", "supportbot-pro")).toBe(false);
 
-    createPurchase("supportbot-pro", "builder@example.com");
+    const purchase = createPurchase("supportbot-pro", "builder@example.com");
+    expect(canReviewTemplate("builder@example.com", "supportbot-pro")).toBe(true);
+
+    purchase.expiresAt = "2000-01-01T00:00:00.000Z";
     expect(canReviewTemplate("builder@example.com", "supportbot-pro")).toBe(true);
   });
 

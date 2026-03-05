@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 import { getTemplateBySlug } from "@/lib/catalog";
 import { listFavoritesByEmail } from "@/lib/favorite-store";
 import { buildBuyerProfile } from "@/lib/profile";
-import { listPurchasesByEmail } from "@/lib/purchase-store";
+import {
+  isPurchaseDownloadExpired,
+  listPurchasesByEmail
+} from "@/lib/purchase-store";
 
 const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
 
@@ -61,69 +64,75 @@ export default async function DashboardPage() {
         <section className="dashboard-panel">
           <p className="muted">Signed in as {buyerEmail}</p>
           <div className="purchase-list">
-            {purchases.map((purchase) => (
-              <article key={purchase.token} className="purchase-item">
-                <div>
-                  <h2>{purchase.templateTitle}</h2>
-                  <p className="muted">Order {purchase.orderId}</p>
-                </div>
-                <div className="purchase-meta">
-                  <p>Purchased: {new Date(purchase.purchasedAt).toLocaleString()}</p>
-                  <p>Downloads: {purchase.downloadCount}</p>
-                  {purchase.lastDownloadedAt ? (
-                    <p>
-                      Last download:{" "}
-                      {new Date(purchase.lastDownloadedAt).toLocaleString()}
-                    </p>
-                  ) : (
-                    <p className="muted">No downloads yet</p>
-                  )}
-                  <p>Expires: {new Date(purchase.expiresAt).toLocaleDateString()}</p>
-                  {purchase.downloadHistory.length > 0 ? (
-                    <div className="download-history">
-                      <p className="muted">Recent download activity:</p>
-                      <ul>
-                        {purchase.downloadHistory.map((downloadedAt) => (
-                          <li key={`${purchase.token}:${downloadedAt}`}>
-                            {new Date(downloadedAt).toLocaleString()}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {(() => {
-                    const template = getTemplateBySlug(purchase.templateSlug);
-                    if (!template || template.version === purchase.purchasedVersion) {
-                      return (
-                        <p className="muted">
-                          Version: {purchase.purchasedVersion} (up to date)
-                        </p>
-                      );
-                    }
+            {purchases.map((purchase) => {
+              const downloadExpired = isPurchaseDownloadExpired(purchase);
+              const template = getTemplateBySlug(purchase.templateSlug);
 
-                    return (
+              return (
+                <article key={purchase.token} className="purchase-item">
+                  <div>
+                    <h2>{purchase.templateTitle}</h2>
+                    <p className="muted">Order {purchase.orderId}</p>
+                  </div>
+                  <div className="purchase-meta">
+                    <p>Purchased: {new Date(purchase.purchasedAt).toLocaleString()}</p>
+                    <p>Downloads: {purchase.downloadCount}</p>
+                    {purchase.lastDownloadedAt ? (
+                      <p>
+                        Last download:{" "}
+                        {new Date(purchase.lastDownloadedAt).toLocaleString()}
+                      </p>
+                    ) : (
+                      <p className="muted">No downloads yet</p>
+                    )}
+                    <p>Expires: {new Date(purchase.expiresAt).toLocaleDateString()}</p>
+                    {downloadExpired ? (
+                      <p className="muted">
+                        Download link expired after 30 days. Purchase history remains
+                        available.
+                      </p>
+                    ) : null}
+                    {purchase.downloadHistory.length > 0 ? (
+                      <div className="download-history">
+                        <p className="muted">Recent download activity:</p>
+                        <ul>
+                          {purchase.downloadHistory.map((downloadedAt) => (
+                            <li key={`${purchase.token}:${downloadedAt}`}>
+                              {new Date(downloadedAt).toLocaleString()}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {!template || template.version === purchase.purchasedVersion ? (
+                      <p className="muted">
+                        Version: {purchase.purchasedVersion} (up to date)
+                      </p>
+                    ) : (
                       <p className="update-notice">
                         Update available: {template.version} (you bought{" "}
                         {purchase.purchasedVersion})
                       </p>
-                    );
-                  })()}
-                  <Link
-                    className="inline-link"
-                    href={`/api/download/${purchase.token}`}
-                    prefetch={false}
-                  >
-                    Validate download link
-                  </Link>
-                  <Link
-                    className="inline-link"
-                    href={`/templates/${purchase.templateSlug}#reviews`}
-                  >
-                    Leave a review
-                  </Link>
-                </div>
-              </article>
-            ))}
+                    )}
+                    {!downloadExpired ? (
+                      <Link
+                        className="inline-link"
+                        href={`/api/download/${purchase.token}`}
+                        prefetch={false}
+                      >
+                        Validate download link
+                      </Link>
+                    ) : null}
+                    <Link
+                      className="inline-link"
+                      href={`/templates/${purchase.templateSlug}#reviews`}
+                    >
+                      Leave a review
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
       )}
