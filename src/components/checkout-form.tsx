@@ -28,11 +28,14 @@ interface PurchaseResponse {
 
 interface DownloadResponse {
   template: string;
+  token: string;
   purchasedAt: string;
   expiresAt: string;
   downloadedAt?: string;
   downloadCount: number;
   downloadHistory: string[];
+  downloadPath: string;
+  refreshedLink: boolean;
   downloadUrl: string;
   downloadHint: string;
 }
@@ -102,6 +105,18 @@ export function CheckoutForm({ templates }: CheckoutFormProps) {
     }
 
     const payload = (await response.json()) as DownloadResponse;
+    setPurchase((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        token: payload.token,
+        downloadPath: payload.downloadPath,
+        expiresAt: payload.expiresAt
+      };
+    });
     setDownload(payload);
   }
 
@@ -182,6 +197,9 @@ export function CheckoutForm({ templates }: CheckoutFormProps) {
           <p>Expires: {new Date(download.expiresAt).toLocaleString()}</p>
           <p>Downloads used: {download.downloadCount}</p>
           <p>Recent download events: {download.downloadHistory.length}</p>
+          {download.refreshedLink ? (
+            <p className="muted">A fresh 30-day link was generated for this download.</p>
+          ) : null}
           <p>
             Asset path: <code>{download.downloadUrl}</code>
           </p>

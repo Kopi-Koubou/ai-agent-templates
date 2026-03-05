@@ -88,8 +88,8 @@ export default async function DashboardPage() {
                     <p>Expires: {new Date(purchase.expiresAt).toLocaleDateString()}</p>
                     {downloadExpired ? (
                       <p className="muted">
-                        Download link expired after 30 days. Purchase history remains
-                        available.
+                        Download link expired after 30 days. Validate to refresh a
+                        new 30-day link.
                       </p>
                     ) : null}
                     {purchase.downloadHistory.length > 0 ? (
@@ -114,15 +114,15 @@ export default async function DashboardPage() {
                         {purchase.purchasedVersion})
                       </p>
                     )}
-                    {!downloadExpired ? (
-                      <Link
-                        className="inline-link"
-                        href={`/api/download/${purchase.token}`}
-                        prefetch={false}
-                      >
-                        Validate download link
-                      </Link>
-                    ) : null}
+                    <Link
+                      className="inline-link"
+                      href={`/api/download/${purchase.token}`}
+                      prefetch={false}
+                    >
+                      {downloadExpired
+                        ? "Refresh and validate download link"
+                        : "Validate download link"}
+                    </Link>
                     <Link
                       className="inline-link"
                       href={`/templates/${purchase.templateSlug}#reviews`}
