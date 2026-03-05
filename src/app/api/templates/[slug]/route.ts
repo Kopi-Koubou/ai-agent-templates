@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getTemplateBySlug } from "@/lib/catalog";
+import { withLiveReviewSummary } from "@/lib/template-catalog-view";
 
 interface Context {
   params: Promise<{ slug: string }>;
@@ -17,5 +18,5 @@ export async function GET(
     return NextResponse.json({ error: "Template not found" }, { status: 404 });
   }
 
-  return NextResponse.json(template);
+  return NextResponse.json(withLiveReviewSummary(template));
 }

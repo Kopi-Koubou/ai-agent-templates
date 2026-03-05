@@ -3,9 +3,13 @@ import Link from "next/link";
 import { TemplateCard } from "@/components/template-card";
 import { templates } from "@/data/templates";
 import { isStarterTemplateAvailable } from "@/lib/template-preview";
+import { withLiveReviewSummaries } from "@/lib/template-catalog-view";
 
 export default function HomePage() {
-  const featuredTemplates = templates.filter((template) => template.featured).slice(0, 4);
+  const catalogTemplates = withLiveReviewSummaries(templates);
+  const featuredTemplates = catalogTemplates
+    .filter((template) => template.featured)
+    .slice(0, 4);
   const freeStarterCount = templates.filter((template) =>
     isStarterTemplateAvailable(template.slug)
   ).length;

@@ -1,5 +1,7 @@
 import { TemplateCard } from "@/components/template-card";
-import { listCatalogTemplates, parseCatalogQueryFromObject } from "@/lib/catalog";
+import { templates } from "@/data/templates";
+import { filterTemplates, parseCatalogQueryFromObject } from "@/lib/catalog";
+import { withLiveReviewSummaries } from "@/lib/template-catalog-view";
 
 interface TemplatesPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -49,7 +51,7 @@ export default async function TemplatesPage({
 }: TemplatesPageProps) {
   const resolvedSearchParams = await searchParams;
   const query = parseCatalogQueryFromObject(resolvedSearchParams);
-  const results = listCatalogTemplates(query);
+  const results = filterTemplates(withLiveReviewSummaries(templates), query);
   const selectedCategories = readMultiValue(resolvedSearchParams.category);
   const selectedFrameworks = readMultiValue(resolvedSearchParams.framework);
   const selectedComplexity = readMultiValue(resolvedSearchParams.complexity);
