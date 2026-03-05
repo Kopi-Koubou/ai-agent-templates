@@ -2,6 +2,10 @@ import Link from "next/link";
 
 import { TemplateCard } from "@/components/template-card";
 import { templates } from "@/data/templates";
+import {
+  buildBundleCheckoutHref,
+  buildTemplateCheckoutHref
+} from "@/lib/checkout";
 import { formatCurrency } from "@/lib/format";
 import { listPublishedBundleDetails } from "@/lib/bundles";
 import { isStarterTemplateAvailable } from "@/lib/template-preview";
@@ -18,7 +22,7 @@ export default function HomePage() {
   const featuredBundle = listPublishedBundleDetails()[0];
   const heroCheckoutHref =
     featuredTemplates[0] !== undefined
-      ? `/checkout?template=${featuredTemplates[0].slug}`
+      ? buildTemplateCheckoutHref(featuredTemplates[0].slug)
       : "/checkout";
 
   return (
@@ -67,7 +71,7 @@ export default function HomePage() {
             </Link>
             <Link
               className="btn-primary"
-              href={`/checkout?bundle=${featuredBundle.slug}`}
+              href={buildBundleCheckoutHref(featuredBundle.slug)}
             >
               Buy featured bundle
             </Link>

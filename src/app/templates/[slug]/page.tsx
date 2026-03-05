@@ -6,6 +6,10 @@ import { FavoriteToggle } from "@/components/favorite-toggle";
 import { listPublishedBundlesForTemplate } from "@/lib/bundles";
 import { ReviewForm } from "@/components/review-form";
 import { getTemplateBySlug } from "@/lib/catalog";
+import {
+  buildBundleCheckoutHref,
+  buildTemplateCheckoutHref
+} from "@/lib/checkout";
 import { isTemplateFavoritedByEmail } from "@/lib/favorite-store";
 import { formatCurrency } from "@/lib/format";
 import {
@@ -87,7 +91,10 @@ export default async function TemplateDetailPage({
         <aside className="price-panel">
           <p className="price">{formatCurrency(template.priceCents)}</p>
           <p className="muted">One-time purchase</p>
-          <Link href={`/checkout?template=${template.slug}`} className="btn-primary">
+          <Link
+            href={buildTemplateCheckoutHref(template.slug)}
+            className="btn-primary"
+          >
             Buy template
           </Link>
           <FavoriteToggle templateSlug={template.slug} initiallySaved={initiallySaved} />
@@ -161,6 +168,12 @@ export default async function TemplateDetailPage({
                   </p>
                   <Link className="inline-link" href={`/bundles/${bundle.slug}`}>
                     View bundle
+                  </Link>
+                  <Link
+                    className="inline-link"
+                    href={buildBundleCheckoutHref(bundle.slug)}
+                  >
+                    Quick buy bundle
                   </Link>
                 </div>
               </article>

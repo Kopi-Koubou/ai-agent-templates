@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { buildTemplateCheckoutHref } from "@/lib/checkout";
 import { formatCurrency } from "@/lib/format";
 import { isStarterTemplateAvailable } from "@/lib/template-preview";
 import { Template } from "@/lib/types";
@@ -42,7 +43,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
         <Link className="card-link" href={`/templates/${template.slug}`}>
           View template
         </Link>
-        <Link className="btn-ghost" href={`/checkout?template=${template.slug}`}>
+        <Link className="btn-ghost" href={buildTemplateCheckoutHref(template.slug)}>
           Buy now
         </Link>
       </div>

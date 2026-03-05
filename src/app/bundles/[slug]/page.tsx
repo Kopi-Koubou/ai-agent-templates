@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { formatCurrency } from "@/lib/format";
+import { buildBundleCheckoutHref } from "@/lib/checkout";
 import { buildBundleDetail, getBundleBySlug } from "@/lib/bundles";
 
 interface BundleDetailPageProps {
@@ -66,7 +67,7 @@ export default async function BundleDetailPage({
         <p className="muted">
           Use bundle checkout to generate download links for every included template.
         </p>
-        <Link className="btn-primary" href={`/checkout?bundle=${detail.slug}`}>
+        <Link className="btn-primary" href={buildBundleCheckoutHref(detail.slug)}>
           Buy this bundle
         </Link>
       </section>

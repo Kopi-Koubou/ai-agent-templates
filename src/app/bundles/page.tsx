@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { formatCurrency } from "@/lib/format";
+import { buildBundleCheckoutHref } from "@/lib/checkout";
 import { listPublishedBundleDetails } from "@/lib/bundles";
 
 export default function BundlesPage() {
@@ -40,9 +41,14 @@ export default function BundlesPage() {
                 <li key={template.slug}>{template.title}</li>
               ))}
             </ul>
-            <Link className="card-link" href={`/bundles/${bundle.slug}`}>
-              View bundle details
-            </Link>
+            <div className="card-actions">
+              <Link className="card-link" href={`/bundles/${bundle.slug}`}>
+                View bundle details
+              </Link>
+              <Link className="btn-ghost" href={buildBundleCheckoutHref(bundle.slug)}>
+                Buy bundle
+              </Link>
+            </div>
           </article>
         ))}
       </div>
