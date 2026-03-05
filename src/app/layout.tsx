@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 
+import { loadProjectBrandThemeTokens } from "@/lib/brand";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,13 +10,16 @@ export const metadata: Metadata = {
   description: "Marketplace MVP for production-ready AI agent templates"
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const brandThemeTokens = await loadProjectBrandThemeTokens();
+  const themeStyle = brandThemeTokens as CSSProperties | undefined;
+
   return (
-    <html lang="en">
+    <html lang="en" style={themeStyle}>
       <body>
         <a href="#main-content" className="skip-link">
           Skip to main content
