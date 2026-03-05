@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  buildBundleCheckoutHref,
+  buildTemplateCheckoutHref,
   resolveInitialBundleSlug,
   resolveInitialTemplateSlug
 } from "@/lib/checkout";
@@ -39,6 +41,12 @@ describe("resolveInitialTemplateSlug", () => {
     );
   });
 
+  test("matches requested slugs case-insensitively", () => {
+    expect(resolveInitialTemplateSlug(templates, "CONTENTPIPELINE")).toBe(
+      "contentpipeline"
+    );
+  });
+
   test("returns an empty string when there are no templates", () => {
     expect(resolveInitialTemplateSlug([], "supportbot-pro")).toBe("");
   });
@@ -61,7 +69,38 @@ describe("resolveInitialBundleSlug", () => {
     );
   });
 
+  test("trims and matches requested bundle slugs case-insensitively", () => {
+    expect(resolveInitialBundleSlug(bundles, "  FULL-COLLECTION ")).toBe(
+      "full-collection"
+    );
+  });
+
   test("returns an empty string when there are no bundles", () => {
     expect(resolveInitialBundleSlug([], "agency-starter-kit")).toBe("");
+  });
+});
+
+describe("checkout URL builders", () => {
+  test("builds template checkout URL", () => {
+    expect(buildTemplateCheckoutHref("supportbot-pro")).toBe(
+      "/checkout?template=supportbot-pro"
+    );
+  });
+
+  test("builds bundle checkout URL", () => {
+    expect(buildBundleCheckoutHref("agency-starter-kit")).toBe(
+      "/checkout?bundle=agency-starter-kit"
+    );
+  });
+
+  test("returns base checkout URL when slug is empty", () => {
+    expect(buildTemplateCheckoutHref("   ")).toBe("/checkout");
+    expect(buildBundleCheckoutHref(undefined)).toBe("/checkout");
+  });
+
+  test("encodes URL values safely", () => {
+    expect(buildTemplateCheckoutHref("custom slug")).toBe(
+      "/checkout?template=custom+slug"
+    );
   });
 });
