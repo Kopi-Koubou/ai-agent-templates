@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { TemplateCard } from "@/components/template-card";
 import { templates } from "@/data/templates";
+import { formatCurrency } from "@/lib/format";
+import { listPublishedBundleDetails } from "@/lib/bundles";
 import { isStarterTemplateAvailable } from "@/lib/template-preview";
 import { withLiveReviewSummaries } from "@/lib/template-catalog-view";
 
@@ -13,6 +15,7 @@ export default function HomePage() {
   const freeStarterCount = templates.filter((template) =>
     isStarterTemplateAvailable(template.slug)
   ).length;
+  const featuredBundle = listPublishedBundleDetails()[0];
 
   return (
     <section className="home-grid">
@@ -42,6 +45,31 @@ export default function HomePage() {
           <li>{freeStarterCount} templates include a free starter package</li>
         </ul>
       </div>
+
+      {featuredBundle ? (
+        <div className="stats-block">
+          <h2>Bundle spotlight</h2>
+          <p>
+            {featuredBundle.title}: {formatCurrency(featuredBundle.priceCents)} for{" "}
+            {featuredBundle.templates.length} templates.
+          </p>
+          <p className="muted">
+            Save {formatCurrency(featuredBundle.pricing.savingsCents)} compared with
+            buying standalone.
+          </p>
+          <div className="cta-row">
+            <Link className="btn-ghost" href="/bundles">
+              Browse bundles
+            </Link>
+            <Link
+              className="btn-primary"
+              href={`/checkout?bundle=${featuredBundle.slug}`}
+            >
+              Buy featured bundle
+            </Link>
+          </div>
+        </div>
+      ) : null}
 
       <div className="section-heading">
         <h2>Featured templates</h2>

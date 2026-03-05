@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { FavoriteToggle } from "@/components/favorite-toggle";
+import { listPublishedBundlesForTemplate } from "@/lib/bundles";
 import { ReviewForm } from "@/components/review-form";
 import { getTemplateBySlug } from "@/lib/catalog";
 import { isTemplateFavoritedByEmail } from "@/lib/favorite-store";
@@ -53,6 +54,7 @@ export default async function TemplateDetailPage({
   const preview = buildTemplatePreview(template);
   const reviewSummary = getTemplateReviewSummary(template);
   const reviews = listReviews(template.slug, reviewSort);
+  const bundleOffers = listPublishedBundlesForTemplate(template.slug);
   const cookieStore = await cookies();
   const buyerEmail = cookieStore.get("agentvault_buyer_email")?.value;
   const initiallySaved =
@@ -138,6 +140,33 @@ export default async function TemplateDetailPage({
             <li key={item}>{item}</li>
           ))}
         </ul>
+      </section>
+
+      <section className="detail-panel">
+        <h2>Bundle offers</h2>
+        {bundleOffers.length === 0 ? (
+          <p className="muted">No bundles currently include this template.</p>
+        ) : (
+          <div className="purchase-list">
+            {bundleOffers.map((bundle) => (
+              <article key={bundle.slug} className="purchase-item">
+                <div>
+                  <h3>{bundle.title}</h3>
+                  <p className="muted">{bundle.templates.length} templates</p>
+                </div>
+                <div className="purchase-meta">
+                  <p>
+                    {formatCurrency(bundle.priceCents)} • Save{" "}
+                    {formatCurrency(bundle.pricing.savingsCents)}
+                  </p>
+                  <Link className="inline-link" href={`/bundles/${bundle.slug}`}>
+                    View bundle
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       <section>

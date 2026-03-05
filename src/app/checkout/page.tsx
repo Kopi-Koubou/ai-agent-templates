@@ -1,7 +1,20 @@
+import { BundleCheckoutForm } from "@/components/bundle-checkout-form";
 import { CheckoutForm } from "@/components/checkout-form";
 import { templates } from "@/data/templates";
+import { listPublishedBundleDetails } from "@/lib/bundles";
 
-export default function CheckoutPage() {
+interface CheckoutPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
+  const bundles = listPublishedBundleDetails();
+  const resolvedSearchParams = await searchParams;
+  const initialBundleParam = resolvedSearchParams.bundle;
+  const initialBundleSlug = Array.isArray(initialBundleParam)
+    ? initialBundleParam[0]
+    : initialBundleParam;
+
   return (
     <section>
       <header className="catalog-header">
@@ -14,6 +27,10 @@ export default function CheckoutPage() {
       </header>
 
       <CheckoutForm templates={templates} />
+      <BundleCheckoutForm
+        bundles={bundles}
+        initialBundleSlug={initialBundleSlug}
+      />
     </section>
   );
 }
