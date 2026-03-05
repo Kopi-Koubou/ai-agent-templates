@@ -1,39 +1,38 @@
 # Implementation Report
 
 ## Summary
-Implemented the current checkout-entry scope by reducing purchase friction and hardening checkout parameter handling:
-- Added shared checkout URL builders for template and bundle entry points.
-- Made initial checkout slug resolution case-insensitive with whitespace normalization.
-- Wired shared checkout links across homepage, template cards, template detail, and bundle detail.
-- Added direct bundle purchase CTA on bundle catalog cards and quick-buy links from template bundle offers.
-- Expanded checkout unit tests for URL building and slug normalization behavior.
+Implemented and validated the current scoped marketplace UI/polish updates with a premium warm visual system and improved empty-state handling across catalog routes:
+- Reworked global design tokens and typography to warm-neutral defaults (no pure white/black, single accent color, 4px spacing scale).
+- Added accessibility and interaction polish (skip link, focus-visible states, reduced-motion handling, consistent button states).
+- Improved catalog robustness with explicit empty states for templates and bundles.
+- Updated not-found presentation to match shared surface/CTA styling.
 
-`design-spec.md` and `tech-spec.md` were requested but are not present in this workspace; implementation was scoped using `PRD.md` and existing repository patterns.
+`design-spec.md` and `tech-spec.md` were requested but are not present in this workspace; implementation was validated against `PRD.md`, existing tests, and current repository scope.
 
 ## Changed Files
-- `src/lib/checkout.ts`
-- `src/lib/checkout.test.ts`
-- `src/components/template-card.tsx`
-- `src/app/page.tsx`
+- `src/app/globals.css`
+- `src/app/layout.tsx`
+- `src/app/templates/page.tsx`
 - `src/app/bundles/page.tsx`
-- `src/app/bundles/[slug]/page.tsx`
-- `src/app/templates/[slug]/page.tsx`
+- `src/app/not-found.tsx`
 - `implementation-report.md`
 
 ## Tests Run
-- `NODE_OPTIONS=--use-bundled-ca npm test`
+- `npm test`
   - Result: passed (18 test files, 74 tests)
-- `NODE_OPTIONS=--use-bundled-ca npm run typecheck`
+- `npm run lint`
+  - Result: passed (no warnings or errors)
+- `npm run typecheck`
   - Result: passed
-- `NODE_OPTIONS=--use-bundled-ca npm run build`
+- `npm run build`
   - Result: passed (Next.js production build succeeded)
 
 ## Known Risks
-- `design-spec.md` and `tech-spec.md` remain unavailable, so acceptance alignment is inferred rather than verified against those artifacts.
-- Checkout, auth, and purchase persistence remain mocked in-memory (cookie identity + simulated receipt/download flow).
-- Entry-point behavior is unit-tested but not covered by browser-level integration tests.
+- `design-spec.md` and `tech-spec.md` are missing, so scope verification is inferred from `PRD.md` and existing implementation/tests.
+- Auth, payments, and persistence remain mocked/in-memory for implementation-stage validation.
+- No browser-level end-to-end tests are present for catalog filter interactions and empty-state rendering.
 
 ## Next Steps
-1. Restore/add `design-spec.md` and `tech-spec.md` so implementation can be validated against explicit acceptance criteria.
-2. Add end-to-end coverage for checkout links from `/`, `/templates`, `/bundles`, and `/templates/[slug]`.
-3. Replace mock checkout/auth flows with real Stripe + Supabase integrations.
+1. Add or restore `design-spec.md` and `tech-spec.md` to lock acceptance criteria to explicit artifacts.
+2. Add end-to-end tests for `/templates` filters, `/bundles` empty state, and checkout/dashboard journeys.
+3. Replace mocked checkout/auth flows with Supabase + Stripe production integrations.
