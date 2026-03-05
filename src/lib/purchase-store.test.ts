@@ -5,7 +5,8 @@ import {
   createPurchase,
   getPurchaseByToken,
   listPurchasesByEmail,
-  recordDownload
+  recordDownload,
+  refreshPurchaseDownloadToken
 } from "@/lib/purchase-store";
 
 describe("purchase store", () => {
@@ -71,6 +72,22 @@ describe("purchase store", () => {
     const history = listPurchasesByEmail("builder@example.com");
     expect(history).toHaveLength(1);
     expect(history[0]?.token).toBe(purchase.token);
+  });
+
+  test("refreshes expired download token for the owning buyer", () => {
+    const purchase = createPurchase("supportbot-pro", "builder@example.com");
+    purchase.expiresAt = "2000-01-01T00:00:00.000Z";
+
+    const refreshed = refreshPurchaseDownloadToken(
+      purchase.token,
+      "builder@example.com"
+    );
+
+    expect(refreshed).not.toBeNull();
+    expect(refreshed?.token).not.toBe(purchase.token);
+    expect(Date.parse(refreshed!.expiresAt)).toBeGreaterThan(Date.now());
+    expect(getPurchaseByToken(purchase.token)).toBeNull();
+    expect(getPurchaseByToken(refreshed!.token)?.token).toBe(refreshed!.token);
   });
 
   test("throws when template slug is invalid", () => {

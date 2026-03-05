@@ -32,6 +32,16 @@ export interface PurchaseReceiptPreview {
 const purchases = new Map<string, PurchaseRecord>();
 const MAX_DOWNLOAD_HISTORY_ENTRIES = 10;
 
+function createUniqueToken(): string {
+  let token = crypto.randomUUID().replace(/-/g, "");
+
+  while (purchases.has(token)) {
+    token = crypto.randomUUID().replace(/-/g, "");
+  }
+
+  return token;
+}
+
 function isExpired(record: PurchaseRecord): boolean {
   return Date.parse(record.expiresAt) < Date.now();
 }
@@ -63,7 +73,7 @@ export function createPurchase(templateSlug: string, email: string): PurchaseRec
   }
 
   const now = Date.now();
-  const token = crypto.randomUUID().replace(/-/g, "");
+  const token = createUniqueToken();
   const orderId = `ord_${crypto.randomUUID().slice(0, 8)}`;
   const receiptSentAt = new Date(now).toISOString();
 
@@ -112,6 +122,34 @@ export function listPurchasesByEmail(email: string): PurchaseRecord[] {
   return records.sort(
     (a, b) => Date.parse(b.purchasedAt) - Date.parse(a.purchasedAt)
   );
+}
+
+export function refreshPurchaseDownloadToken(
+  token: string,
+  email: string
+): PurchaseRecord | null {
+  const purchase = purchases.get(token);
+  if (!purchase) {
+    return null;
+  }
+
+  if (purchase.email !== email.trim().toLowerCase()) {
+    return null;
+  }
+
+  if (!isExpired(purchase)) {
+    return purchase;
+  }
+
+  const renewedPurchase: PurchaseRecord = {
+    ...purchase,
+    token: createUniqueToken(),
+    expiresAt: new Date(Date.now() + PURCHASE_TTL_MS).toISOString()
+  };
+
+  purchases.delete(token);
+  purchases.set(renewedPurchase.token, renewedPurchase);
+  return renewedPurchase;
 }
 
 export function recordDownload(token: string): PurchaseRecord | null {

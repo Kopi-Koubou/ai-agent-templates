@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, test } from "vitest";
 import { GET as downloadRoute } from "@/app/api/download/[token]/route";
 import { POST as purchaseRoute } from "@/app/api/purchase/route";
 import { GET as purchasesRoute } from "@/app/api/purchases/route";
-import { clearPurchaseStoreForTests } from "@/lib/purchase-store";
+import {
+  clearPurchaseStoreForTests,
+  getPurchaseByToken
+} from "@/lib/purchase-store";
 
 interface PurchaseResponse {
   token: string;
@@ -24,14 +27,21 @@ interface PurchaseResponse {
 
 interface DownloadResponse {
   template: string;
+  token: string;
   downloadCount: number;
   downloadedAt?: string;
   downloadHistory: string[];
+  downloadPath: string;
+  refreshedLink: boolean;
 }
 
 interface PurchasesResponse {
   count: number;
-  purchases: Array<{ templateSlug: string; purchasedVersion: string }>;
+  purchases: Array<{
+    token: string;
+    templateSlug: string;
+    purchasedVersion: string;
+  }>;
 }
 
 describe("purchase and download API flow", () => {
@@ -94,5 +104,60 @@ describe("purchase and download API flow", () => {
     );
 
     expect(response.status).toBe(401);
+  });
+
+  test("renews an expired download link for the authenticated buyer", async () => {
+    const buyerEmail = "builder@example.com";
+    const createResponse = await purchaseRoute(
+      new Request("http://localhost/api/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateSlug: "supportbot-pro",
+          email: buyerEmail
+        })
+      })
+    );
+
+    expect(createResponse.status).toBe(200);
+    const purchase = (await createResponse.json()) as PurchaseResponse;
+    const record = getPurchaseByToken(purchase.token);
+    expect(record).not.toBeNull();
+    record!.expiresAt = "2000-01-01T00:00:00.000Z";
+
+    const expiredResponse = await downloadRoute(
+      new Request(`http://localhost/api/download/${purchase.token}`),
+      { params: Promise.resolve({ token: purchase.token }) }
+    );
+    expect(expiredResponse.status).toBe(404);
+
+    const refreshedResponse = await downloadRoute(
+      new Request(`http://localhost/api/download/${purchase.token}`, {
+        headers: {
+          cookie: `agentvault_buyer_email=${encodeURIComponent(buyerEmail)}`
+        }
+      }),
+      { params: Promise.resolve({ token: purchase.token }) }
+    );
+    expect(refreshedResponse.status).toBe(200);
+
+    const refreshed = (await refreshedResponse.json()) as DownloadResponse;
+    expect(refreshed.refreshedLink).toBe(true);
+    expect(refreshed.token).not.toBe(purchase.token);
+    expect(refreshed.downloadPath).toBe(`/api/download/${refreshed.token}`);
+    expect(refreshed.downloadCount).toBe(1);
+
+    const historyResponse = await purchasesRoute(
+      new Request("http://localhost/api/purchases", {
+        headers: {
+          cookie: `agentvault_buyer_email=${encodeURIComponent(buyerEmail)}`
+        }
+      })
+    );
+    expect(historyResponse.status).toBe(200);
+
+    const history = (await historyResponse.json()) as PurchasesResponse;
+    expect(history.count).toBe(1);
+    expect(history.purchases[0]?.token).toBe(refreshed.token);
   });
 });
