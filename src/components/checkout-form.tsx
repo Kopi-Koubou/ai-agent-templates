@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
+import { resolveInitialTemplateSlug } from "@/lib/checkout";
 import { Template } from "@/lib/types";
 
 interface CheckoutFormProps {
   templates: Template[];
+  initialTemplateSlug?: string;
 }
 
 interface PurchaseResponse {
@@ -56,8 +58,13 @@ interface DownloadResponse {
   downloadHint: string;
 }
 
-export function CheckoutForm({ templates }: CheckoutFormProps) {
-  const [templateSlug, setTemplateSlug] = useState(templates[0]?.slug ?? "");
+export function CheckoutForm({
+  templates,
+  initialTemplateSlug
+}: CheckoutFormProps) {
+  const [templateSlug, setTemplateSlug] = useState(() =>
+    resolveInitialTemplateSlug(templates, initialTemplateSlug)
+  );
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [purchase, setPurchase] = useState<PurchaseResponse | null>(null);

@@ -87,7 +87,7 @@ export default async function TemplateDetailPage({
         <aside className="price-panel">
           <p className="price">{formatCurrency(template.priceCents)}</p>
           <p className="muted">One-time purchase</p>
-          <Link href="/checkout" className="btn-primary">
+          <Link href={`/checkout?template=${template.slug}`} className="btn-primary">
             Buy template
           </Link>
           <FavoriteToggle templateSlug={template.slug} initiallySaved={initiallySaved} />

@@ -10,6 +10,10 @@ interface CheckoutPageProps {
 export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
   const bundles = listPublishedBundleDetails();
   const resolvedSearchParams = await searchParams;
+  const initialTemplateParam = resolvedSearchParams.template;
+  const initialTemplateSlug = Array.isArray(initialTemplateParam)
+    ? initialTemplateParam[0]
+    : initialTemplateParam;
   const initialBundleParam = resolvedSearchParams.bundle;
   const initialBundleSlug = Array.isArray(initialBundleParam)
     ? initialBundleParam[0]
@@ -26,7 +30,10 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
         </p>
       </header>
 
-      <CheckoutForm templates={templates} />
+      <CheckoutForm
+        templates={templates}
+        initialTemplateSlug={initialTemplateSlug}
+      />
       <BundleCheckoutForm
         bundles={bundles}
         initialBundleSlug={initialBundleSlug}
