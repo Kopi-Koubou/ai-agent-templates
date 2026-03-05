@@ -29,6 +29,15 @@ export interface PurchaseReceiptPreview {
   previewText: string;
 }
 
+export interface PurchaseLicensePreview {
+  model: "per-user";
+  projects: "unlimited";
+  transferability: "non-transferable";
+  holderEmail: string;
+  grantedAt: string;
+  summary: string;
+}
+
 const purchases = new Map<string, PurchaseRecord>();
 const MAX_DOWNLOAD_HISTORY_ENTRIES = 10;
 
@@ -63,6 +72,20 @@ export function buildPurchaseReceiptPreview(
     expiresAt: purchase.expiresAt,
     previewText:
       "This mock receipt confirms your purchase and includes a 30-day download link."
+  };
+}
+
+export function buildPurchaseLicensePreview(
+  purchase: Pick<PurchaseRecord, "email" | "purchasedAt">
+): PurchaseLicensePreview {
+  return {
+    model: "per-user",
+    projects: "unlimited",
+    transferability: "non-transferable",
+    holderEmail: purchase.email,
+    grantedAt: purchase.purchasedAt,
+    summary:
+      "Per-user license with unlimited projects. Non-transferable to other users."
   };
 }
 

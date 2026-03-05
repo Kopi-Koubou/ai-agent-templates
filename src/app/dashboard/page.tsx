@@ -6,6 +6,7 @@ import { getTemplateBySlug } from "@/lib/catalog";
 import { listFavoritesByEmail } from "@/lib/favorite-store";
 import { buildBuyerProfile } from "@/lib/profile";
 import {
+  buildPurchaseLicensePreview,
   isPurchaseDownloadExpired,
   listPurchasesByEmail
 } from "@/lib/purchase-store";
@@ -68,6 +69,7 @@ export default async function DashboardPage() {
           <div className="purchase-list">
             {purchases.map((purchase) => {
               const downloadExpired = isPurchaseDownloadExpired(purchase);
+              const license = buildPurchaseLicensePreview(purchase);
               const template = getTemplateBySlug(purchase.templateSlug);
 
               return (
@@ -78,6 +80,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="purchase-meta">
                     <p>Purchased: {new Date(purchase.purchasedAt).toLocaleString()}</p>
+                    <p>License: {license.summary}</p>
                     <p>Downloads: {purchase.downloadCount}</p>
                     {purchase.lastDownloadedAt ? (
                       <p>

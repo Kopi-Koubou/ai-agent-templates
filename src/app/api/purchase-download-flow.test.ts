@@ -13,6 +13,14 @@ interface PurchaseResponse {
   orderId: string;
   downloadPath: string;
   expiresAt: string;
+  license: {
+    model: "per-user";
+    projects: "unlimited";
+    transferability: "non-transferable";
+    holderEmail: string;
+    grantedAt: string;
+    summary: string;
+  };
   receipt: {
     id: string;
     to: string;
@@ -33,6 +41,14 @@ interface DownloadResponse {
   downloadHistory: string[];
   downloadPath: string;
   refreshedLink: boolean;
+  license: {
+    model: "per-user";
+    projects: "unlimited";
+    transferability: "non-transferable";
+    holderEmail: string;
+    grantedAt: string;
+    summary: string;
+  };
 }
 
 interface PurchasesResponse {
@@ -70,6 +86,11 @@ describe("purchase and download API flow", () => {
     expect(purchase.receipt.to).toBe(buyerEmail);
     expect(purchase.receipt.downloadPath).toBe(purchase.downloadPath);
     expect(purchase.receipt.expiresAt).toBe(purchase.expiresAt);
+    expect(purchase.license.model).toBe("per-user");
+    expect(purchase.license.projects).toBe("unlimited");
+    expect(purchase.license.transferability).toBe("non-transferable");
+    expect(purchase.license.holderEmail).toBe(buyerEmail);
+    expect(purchase.license.summary).toContain("Per-user license");
 
     const downloadResponse = await downloadRoute(
       new Request(`http://localhost/api/download/${purchase.token}`),
@@ -82,6 +103,10 @@ describe("purchase and download API flow", () => {
     expect(download.downloadCount).toBe(1);
     expect(download.downloadedAt).toBeDefined();
     expect(download.downloadHistory).toHaveLength(1);
+    expect(download.license.model).toBe("per-user");
+    expect(download.license.projects).toBe("unlimited");
+    expect(download.license.transferability).toBe("non-transferable");
+    expect(download.license.holderEmail).toBe(buyerEmail);
 
     const historyResponse = await purchasesRoute(
       new Request("http://localhost/api/purchases", {

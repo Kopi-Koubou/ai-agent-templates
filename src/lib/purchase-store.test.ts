@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest";
 
 import {
+  buildPurchaseLicensePreview,
   clearPurchaseStoreForTests,
   createPurchase,
   getPurchaseByToken,
@@ -23,6 +24,13 @@ describe("purchase store", () => {
     expect(purchase.downloadCount).toBe(0);
     expect(purchase.receiptId).toMatch(/^rcpt_/);
     expect(purchase.receiptSentAt).toBeDefined();
+
+    const license = buildPurchaseLicensePreview(purchase);
+    expect(license.model).toBe("per-user");
+    expect(license.projects).toBe("unlimited");
+    expect(license.transferability).toBe("non-transferable");
+    expect(license.holderEmail).toBe("builder@example.com");
+    expect(license.summary).toContain("unlimited projects");
 
     const retrieved = getPurchaseByToken(purchase.token);
     expect(retrieved?.templateSlug).toBe("supportbot-pro");

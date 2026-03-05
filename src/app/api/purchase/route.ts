@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import {
+  buildPurchaseLicensePreview,
   buildPurchaseReceiptPreview,
   createPurchase,
   PURCHASE_TTL_MS
@@ -34,6 +35,7 @@ export async function POST(request: Request): Promise<Response> {
       expiresAt: purchase.expiresAt,
       downloadPath: `/api/download/${purchase.token}`,
       dashboardPath: "/dashboard",
+      license: buildPurchaseLicensePreview(purchase),
       receipt: buildPurchaseReceiptPreview(purchase)
     });
 

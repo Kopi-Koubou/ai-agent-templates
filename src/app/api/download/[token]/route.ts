@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getCookieValue } from "@/lib/http";
 import {
+  buildPurchaseLicensePreview,
   PurchaseRecord,
   recordDownload,
   refreshPurchaseDownloadToken
@@ -27,6 +28,7 @@ function buildDownloadPayload(
     downloadHistory: purchase.downloadHistory,
     downloadPath: `/api/download/${purchase.token}`,
     refreshedLink,
+    license: buildPurchaseLicensePreview(purchase),
     downloadUrl: `/downloads/${purchase.templateSlug}.zip`,
     downloadHint:
       "In production this endpoint returns a signed Supabase storage URL for a template ZIP package."

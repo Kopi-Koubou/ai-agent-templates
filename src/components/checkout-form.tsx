@@ -14,6 +14,14 @@ interface PurchaseResponse {
   token: string;
   downloadPath: string;
   expiresAt: string;
+  license: {
+    model: "per-user";
+    projects: "unlimited";
+    transferability: "non-transferable";
+    holderEmail: string;
+    grantedAt: string;
+    summary: string;
+  };
   receipt: {
     id: string;
     to: string;
@@ -36,6 +44,14 @@ interface DownloadResponse {
   downloadHistory: string[];
   downloadPath: string;
   refreshedLink: boolean;
+  license: {
+    model: "per-user";
+    projects: "unlimited";
+    transferability: "non-transferable";
+    holderEmail: string;
+    grantedAt: string;
+    summary: string;
+  };
   downloadUrl: string;
   downloadHint: string;
 }
@@ -171,6 +187,7 @@ export function CheckoutForm({ templates }: CheckoutFormProps) {
           <p>
             Receipt queued: <code>{purchase.receipt.id}</code>
           </p>
+          <p className="muted">License: {purchase.license.summary}</p>
           <p className="muted">
             Receipt to {purchase.receipt.to}: {purchase.receipt.subject}
           </p>
@@ -200,6 +217,7 @@ export function CheckoutForm({ templates }: CheckoutFormProps) {
           {download.refreshedLink ? (
             <p className="muted">A fresh 30-day link was generated for this download.</p>
           ) : null}
+          <p className="muted">License: {download.license.summary}</p>
           <p>
             Asset path: <code>{download.downloadUrl}</code>
           </p>
