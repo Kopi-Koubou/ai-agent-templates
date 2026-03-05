@@ -16,12 +16,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <div className="page-shell">
           <header className="site-header">
             <Link href="/" className="brand">
               AgentVault
             </Link>
-            <nav>
+            <nav aria-label="Primary">
               <Link href="/templates">Templates</Link>
               <Link href="/bundles">Bundles</Link>
               <Link href="/checkout">Checkout</Link>
@@ -29,7 +32,7 @@ export default function RootLayout({
             </nav>
           </header>
 
-          <main>{children}</main>
+          <main id="main-content">{children}</main>
 
           <footer className="site-footer">
             <p>AgentVault MVP implementation for pipeline stage validation.</p>

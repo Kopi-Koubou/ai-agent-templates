@@ -180,11 +180,21 @@ export default async function TemplatesPage({
 
       <p className="result-count">{results.length} templates found</p>
 
-      <div className="card-grid">
-        {results.map((template) => (
-          <TemplateCard key={template.id} template={template} />
-        ))}
-      </div>
+      {results.length === 0 ? (
+        <section className="detail-panel empty-state">
+          <h2>No templates match these filters</h2>
+          <p>
+            Try removing one filter or use a broader search query to explore the full
+            launch catalog.
+          </p>
+        </section>
+      ) : (
+        <div className="card-grid">
+          {results.map((template) => (
+            <TemplateCard key={template.id} template={template} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
