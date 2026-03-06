@@ -6,6 +6,7 @@ import { CustomizationWizardForm } from "@/components/customization-wizard-form"
 import { FavoriteToggle } from "@/components/favorite-toggle";
 import { listPublishedBundlesForTemplate } from "@/lib/bundles";
 import { ReviewForm } from "@/components/review-form";
+import { SellerResponseForm } from "@/components/seller-response-form";
 import { getTemplateBySlug } from "@/lib/catalog";
 import {
   buildBundleCheckoutHref,
@@ -278,6 +279,11 @@ export default async function TemplateDetailPage({
                     Seller response: {review.sellerResponse}
                   </p>
                 ) : null}
+                <SellerResponseForm
+                  templateSlug={template.slug}
+                  reviewId={review.id}
+                  initialResponse={review.sellerResponse}
+                />
               </article>
             ))}
           </div>
