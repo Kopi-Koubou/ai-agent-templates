@@ -34,6 +34,7 @@ export default async function RootLayout({
               <Link href="/bundles">Bundles</Link>
               <Link href="/checkout">Checkout</Link>
               <Link href="/dashboard">Dashboard</Link>
+              <Link href="/seller">Seller</Link>
             </nav>
           </header>
 

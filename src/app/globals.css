@@ -683,6 +683,49 @@ textarea {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
+.seller-form {
+  gap: var(--space-4);
+}
+
+.seller-framework-group {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.seller-framework-list {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.seller-result {
+  gap: var(--space-3);
+}
+
+.submission-status-pill {
+  margin-left: var(--space-2);
+}
+
+.submission-status-pill-pending {
+  background: rgba(31, 138, 76, 0.12);
+  border-color: rgba(31, 138, 76, 0.3);
+  color: var(--success);
+}
+
+.submission-status-pill-needs-updates {
+  background: var(--error-soft);
+  border-color: rgba(194, 63, 54, 0.35);
+  color: var(--error);
+}
+
+.seller-check-list {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+.seller-check-list li + li {
+  margin-top: var(--space-2);
+}
+
 .wizard-output {
   gap: var(--space-4);
 }
