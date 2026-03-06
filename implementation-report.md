@@ -1,32 +1,47 @@
 # Implementation Report
 
 ## Summary
-Implemented the remaining scoped UI gap for PRD review workflows by adding seller response actions directly on template review cards:
-- Added a new client component that submits seller responses to the existing `PATCH /api/templates/[slug]/reviews/[reviewId]/response` endpoint.
-- Wired seller response controls into the template detail review list so responses can be added or updated in place.
-- Added token-based styling for the new form and improved checkbox option hit areas to keep 44px touch-target friendliness.
+Implemented scoped checkout and purchase-flow enhancements by adding mock payment-method support end-to-end for template and bundle purchases:
+- Added shared payment method contracts (`card`, `apple-pay`, `google-pay`) with display labels.
+- Extended purchase and bundle store records to persist payment method metadata.
+- Updated purchase APIs to validate payment methods and return them in responses/receipts.
+- Updated checkout UIs to let buyers select payment method and view it in purchase summaries.
+- Added regression tests for payment-method validation and propagation through single and bundle purchases.
+- Reordered the home hero CTA button order so the primary action appears last in the button group, aligning with the provided premium UI constraints.
 
-`design-spec.md` and `tech-spec.md` were requested but are not present in this workspace, so scope validation was based on `PRD.md` plus existing tests and route contracts. No `brand.json` file exists in the project root; default warm-neutral token values remain active.
+`design-spec.md` and `tech-spec.md` were requested but are not present in this workspace, so scope validation was based on `PRD.md` plus existing route contracts/tests. No `brand.json` file exists in the project root, so warm-neutral defaults remain active.
 
 ## Changed Files
-- `src/components/seller-response-form.tsx` (new)
-- `src/app/templates/[slug]/page.tsx`
+- `src/lib/payment-methods.ts` (new)
+- `src/lib/payment-methods.test.ts` (new)
+- `src/lib/purchase-store.ts`
+- `src/lib/purchase-store.test.ts`
+- `src/lib/bundle-store.ts`
+- `src/lib/bundle-store.test.ts`
+- `src/lib/profile.test.ts`
+- `src/app/api/purchase/route.ts`
+- `src/app/api/bundles/[slug]/purchase/route.ts`
+- `src/app/api/purchase-download-flow.test.ts`
+- `src/app/api/bundles-flow.test.ts`
+- `src/components/checkout-form.tsx`
+- `src/components/bundle-checkout-form.tsx`
 - `src/app/globals.css`
+- `src/app/page.tsx`
 - `implementation-report.md`
 
 ## Tests Run
-- `npm test` (passed: 21 files, 83 tests)
+- `npm test` (passed: 22 files, 88 tests)
 - `npm run lint` (passed: no warnings/errors)
 - `npm run typecheck` (passed)
 - `npm run build` (passed: Next.js production build succeeded)
 
 ## Known Risks
-- `design-spec.md` and `tech-spec.md` are missing, so acceptance criteria are inferred from `PRD.md` and existing code/test patterns.
-- Seller response UI is intentionally mock-level and does not enforce seller-specific authorization in this implementation environment.
-- Data stores for purchases, favorites, and reviews are in-memory and reset between process restarts.
+- `design-spec.md` and `tech-spec.md` are missing, so acceptance criteria are inferred from `PRD.md` and existing tests/contracts.
+- Payment processing remains mock-only; no real Stripe/Apple Pay/Google Pay integration is implemented.
+- Purchase/review/favorites storage remains in-memory and resets between process restarts.
 
 ## Next Steps
-1. Add seller authentication/authorization checks for response actions.
-2. Persist review, purchase, and favorites data in a real database (Supabase/Postgres).
-3. Add component/integration tests for seller response UI states and error handling.
-4. Add `design-spec.md` and `tech-spec.md` artifacts to make scope baselines explicit.
+1. Integrate real payment providers (Stripe Payment Intents + wallet methods) while preserving the current API shape.
+2. Persist purchase and checkout metadata in a durable store (e.g., Postgres/Supabase).
+3. Add end-to-end checkout tests that assert payment-method selection from UI through API response payloads.
+4. Add `design-spec.md` and `tech-spec.md` to the repo so future implementation passes can validate exact scope directly.
