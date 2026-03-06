@@ -1,42 +1,32 @@
 # Implementation Report
 
 ## Summary
-Implemented the current scoped feature set by adding a full Template Customization Wizard flow aligned to the PRD scope and premium UI constraints:
-- Added backend customization generation logic for template-specific starter artifacts (`SOUL.md`, `IDENTITY.md`, `tools/tool-configs.json`, `CUSTOMIZE.md`).
-- Added a new API endpoint at `/api/templates/[slug]/customize` with strict payload validation and normalized output.
-- Added a client-side customization wizard to template detail pages so buyers can generate tailored starter configs before manual edits.
-- Updated form control styling to correctly handle checkbox inputs while preserving the warm tokenized design system.
-- Added unit and API flow tests for customization behavior and validation.
+Implemented the remaining scoped UI gap for PRD review workflows by adding seller response actions directly on template review cards:
+- Added a new client component that submits seller responses to the existing `PATCH /api/templates/[slug]/reviews/[reviewId]/response` endpoint.
+- Wired seller response controls into the template detail review list so responses can be added or updated in place.
+- Added token-based styling for the new form and improved checkbox option hit areas to keep 44px touch-target friendliness.
 
-`design-spec.md` and `tech-spec.md` were requested but are not present in this workspace; implementation was scoped using `PRD.md` plus existing project patterns/tests. No `brand.json` file exists in the project root, so default warm design tokens remain active.
+`design-spec.md` and `tech-spec.md` were requested but are not present in this workspace, so scope validation was based on `PRD.md` plus existing tests and route contracts. No `brand.json` file exists in the project root; default warm-neutral token values remain active.
 
 ## Changed Files
-- `src/lib/customization.ts`
-- `src/lib/customization.test.ts`
-- `src/app/api/templates/[slug]/customize/route.ts`
-- `src/app/api/customization-flow.test.ts`
-- `src/components/customization-wizard-form.tsx`
+- `src/components/seller-response-form.tsx` (new)
 - `src/app/templates/[slug]/page.tsx`
 - `src/app/globals.css`
 - `implementation-report.md`
 
 ## Tests Run
-- `npm test`
-  - Result: passed (21 test files, 83 tests)
-- `npm run lint`
-  - Result: passed (no warnings or errors)
-- `npm run typecheck`
-  - Result: passed
-- `npm run build`
-  - Result: passed (Next.js production build succeeded)
+- `npm test` (passed: 21 files, 83 tests)
+- `npm run lint` (passed: no warnings/errors)
+- `npm run typecheck` (passed)
+- `npm run build` (passed: Next.js production build succeeded)
 
 ## Known Risks
-- `design-spec.md` and `tech-spec.md` are missing, so acceptance criteria are inferred from `PRD.md` and existing code patterns.
-- Customization outputs are deterministic templates (not persisted per user/session); generated artifacts are preview-oriented and currently not stored server-side.
-- Auth, payments, and persistence remain mocked/in-memory for implementation-stage validation.
+- `design-spec.md` and `tech-spec.md` are missing, so acceptance criteria are inferred from `PRD.md` and existing code/test patterns.
+- Seller response UI is intentionally mock-level and does not enforce seller-specific authorization in this implementation environment.
+- Data stores for purchases, favorites, and reviews are in-memory and reset between process restarts.
 
 ## Next Steps
-1. Add `design-spec.md` and `tech-spec.md` to make scope validation explicit for future increments.
-2. Persist customization runs per buyer/template so generated packages are recoverable from dashboard history.
-3. Add UI integration tests for wizard submission, error states, and generated artifact rendering.
-4. Replace mocked checkout/auth flows with production Supabase + Stripe integrations.
+1. Add seller authentication/authorization checks for response actions.
+2. Persist review, purchase, and favorites data in a real database (Supabase/Postgres).
+3. Add component/integration tests for seller response UI states and error handling.
+4. Add `design-spec.md` and `tech-spec.md` artifacts to make scope baselines explicit.
