@@ -1,4 +1,8 @@
 import { getTemplateBySlug } from "@/lib/catalog";
+import {
+  getPaymentMethodLabel,
+  PaymentMethod
+} from "@/lib/payment-methods";
 
 export const PURCHASE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -15,6 +19,7 @@ export interface PurchaseRecord {
   downloadHistory: string[];
   receiptId: string;
   receiptSentAt: string;
+  paymentMethod: PaymentMethod;
   lastDownloadedAt?: string;
 }
 
@@ -24,6 +29,7 @@ export interface PurchaseReceiptPreview {
   sentAt: string;
   subject: string;
   delivery: "mock-queued";
+  paymentMethod: PaymentMethod;
   downloadPath: string;
   expiresAt: string;
   previewText: string;
@@ -62,16 +68,19 @@ export function isPurchaseDownloadExpired(record: PurchaseRecord): boolean {
 export function buildPurchaseReceiptPreview(
   purchase: PurchaseRecord
 ): PurchaseReceiptPreview {
+  const paymentMethodLabel = getPaymentMethodLabel(purchase.paymentMethod);
+
   return {
     id: purchase.receiptId,
     to: purchase.email,
     sentAt: purchase.receiptSentAt,
     subject: `Your AgentVault receipt for ${purchase.templateTitle}`,
     delivery: "mock-queued",
+    paymentMethod: purchase.paymentMethod,
     downloadPath: `/api/download/${purchase.token}`,
     expiresAt: purchase.expiresAt,
     previewText:
-      "This mock receipt confirms your purchase and includes a 30-day download link."
+      `This mock receipt confirms your purchase (${paymentMethodLabel}) and includes a 30-day download link.`
   };
 }
 
@@ -89,7 +98,11 @@ export function buildPurchaseLicensePreview(
   };
 }
 
-export function createPurchase(templateSlug: string, email: string): PurchaseRecord {
+export function createPurchase(
+  templateSlug: string,
+  email: string,
+  paymentMethod: PaymentMethod = "card"
+): PurchaseRecord {
   const template = getTemplateBySlug(templateSlug);
   if (!template) {
     throw new Error(`Template not found: ${templateSlug}`);
@@ -112,7 +125,8 @@ export function createPurchase(templateSlug: string, email: string): PurchaseRec
     downloadCount: 0,
     downloadHistory: [],
     receiptId: `rcpt_${crypto.randomUUID().slice(0, 10)}`,
-    receiptSentAt
+    receiptSentAt,
+    paymentMethod
   };
 
   purchases.set(token, record);

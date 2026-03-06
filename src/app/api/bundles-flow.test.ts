@@ -22,10 +22,12 @@ interface BundleResponse {
 interface BundlePurchaseResponse {
   bundleOrderId: string;
   bundleSlug: string;
+  paymentMethod: "card" | "apple-pay" | "google-pay";
   templateCount: number;
   items: Array<{
     token: string;
     downloadPath: string;
+    paymentMethod: "card" | "apple-pay" | "google-pay";
   }>;
 }
 
@@ -66,7 +68,10 @@ describe("bundle API flow", () => {
       new Request("http://localhost/api/bundles/agency-starter-kit/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: buyerEmail })
+        body: JSON.stringify({
+          email: buyerEmail,
+          paymentMethod: "google-pay"
+        })
       }),
       { params: Promise.resolve({ slug: "agency-starter-kit" }) }
     );
@@ -75,11 +80,13 @@ describe("bundle API flow", () => {
     const purchasePayload = (await purchaseResponse.json()) as BundlePurchaseResponse;
     expect(purchasePayload.bundleOrderId).toMatch(/^bord_/);
     expect(purchasePayload.bundleSlug).toBe("agency-starter-kit");
+    expect(purchasePayload.paymentMethod).toBe("google-pay");
     expect(purchasePayload.templateCount).toBe(4);
     expect(purchasePayload.items).toHaveLength(4);
     expect(
       purchasePayload.items.every((item) =>
-        item.downloadPath.startsWith("/api/download/")
+        item.downloadPath.startsWith("/api/download/") &&
+        item.paymentMethod === "google-pay"
       )
     ).toBe(true);
 

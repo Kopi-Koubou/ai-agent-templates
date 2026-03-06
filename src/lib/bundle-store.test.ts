@@ -17,6 +17,7 @@ describe("bundle store", () => {
     expect(result.bundleOrderId).toMatch(/^bord_/);
     expect(result.bundleSlug).toBe("agency-starter-kit");
     expect(result.email).toBe("builder@example.com");
+    expect(result.paymentMethod).toBe("card");
     expect(result.templateCount).toBe(4);
     expect(result.items).toHaveLength(4);
     expect(result.items[0]?.downloadPath).toContain("/api/download/");
@@ -26,6 +27,19 @@ describe("bundle store", () => {
 
     const purchaseHistory = listPurchasesByEmail("builder@example.com");
     expect(purchaseHistory).toHaveLength(4);
+  });
+
+  test("propagates payment method to all bundle purchase items", () => {
+    const result = createBundlePurchase(
+      "agency-starter-kit",
+      "builder@example.com",
+      "apple-pay"
+    );
+
+    expect(result.paymentMethod).toBe("apple-pay");
+    expect(result.items.every((item) => item.paymentMethod === "apple-pay")).toBe(
+      true
+    );
   });
 
   test("throws for unknown bundle slugs", () => {

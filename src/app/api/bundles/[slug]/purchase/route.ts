@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { createBundlePurchase } from "@/lib/bundle-store";
+import { PAYMENT_METHODS } from "@/lib/payment-methods";
 import { PURCHASE_TTL_MS } from "@/lib/purchase-store";
 
 const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
 
 const purchaseSchema = z.object({
-  email: z.string().email()
+  email: z.string().email(),
+  paymentMethod: z.enum(PAYMENT_METHODS).default("card")
 });
 
 interface Context {
@@ -30,7 +32,11 @@ export async function POST(
   }
 
   try {
-    const purchase = createBundlePurchase(slug, parsed.data.email);
+    const purchase = createBundlePurchase(
+      slug,
+      parsed.data.email,
+      parsed.data.paymentMethod
+    );
 
     const response = NextResponse.json(purchase);
     response.cookies.set(BUYER_EMAIL_COOKIE, purchase.email, {

@@ -6,6 +6,7 @@ import {
   PurchaseLicensePreview,
   PurchaseReceiptPreview
 } from "@/lib/purchase-store";
+import { PaymentMethod } from "@/lib/payment-methods";
 
 export interface BundlePurchaseItem {
   templateSlug: string;
@@ -16,6 +17,7 @@ export interface BundlePurchaseItem {
   purchasedAt: string;
   expiresAt: string;
   downloadPath: string;
+  paymentMethod: PaymentMethod;
   license: PurchaseLicensePreview;
   receipt: PurchaseReceiptPreview;
 }
@@ -31,12 +33,14 @@ export interface BundlePurchaseRecord {
   retailCents: number;
   savingsCents: number;
   discountPct: number;
+  paymentMethod: PaymentMethod;
   items: BundlePurchaseItem[];
 }
 
 export function createBundlePurchase(
   bundleSlug: string,
-  email: string
+  email: string,
+  paymentMethod: PaymentMethod = "card"
 ): BundlePurchaseRecord {
   const bundle = getBundleBySlug(bundleSlug);
   if (!bundle || !bundle.isPublished) {
@@ -46,7 +50,7 @@ export function createBundlePurchase(
   const normalizedEmail = email.trim().toLowerCase();
   const detail = buildBundleDetail(bundle);
   const purchases = detail.templates.map((template) =>
-    createPurchase(template.slug, normalizedEmail)
+    createPurchase(template.slug, normalizedEmail, paymentMethod)
   );
 
   return {
@@ -60,6 +64,7 @@ export function createBundlePurchase(
     retailCents: detail.pricing.retailCents,
     savingsCents: detail.pricing.savingsCents,
     discountPct: detail.discountPct,
+    paymentMethod,
     items: purchases.map((purchase) => ({
       templateSlug: purchase.templateSlug,
       templateTitle: purchase.templateTitle,
@@ -69,6 +74,7 @@ export function createBundlePurchase(
       purchasedAt: purchase.purchasedAt,
       expiresAt: purchase.expiresAt,
       downloadPath: `/api/download/${purchase.token}`,
+      paymentMethod: purchase.paymentMethod,
       license: buildPurchaseLicensePreview(purchase),
       receipt: buildPurchaseReceiptPreview(purchase)
     }))

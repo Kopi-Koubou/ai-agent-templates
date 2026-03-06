@@ -22,6 +22,7 @@ describe("purchase store", () => {
     expect(purchase.token.length).toBeGreaterThan(20);
     expect(purchase.purchasedVersion).toBe("1.2.0");
     expect(purchase.downloadCount).toBe(0);
+    expect(purchase.paymentMethod).toBe("card");
     expect(purchase.receiptId).toMatch(/^rcpt_/);
     expect(purchase.receiptSentAt).toBeDefined();
 
@@ -102,5 +103,15 @@ describe("purchase store", () => {
     expect(() => createPurchase("missing-template", "x@example.com")).toThrow(
       /Template not found/
     );
+  });
+
+  test("stores explicit payment method overrides", () => {
+    const purchase = createPurchase(
+      "supportbot-pro",
+      "builder@example.com",
+      "google-pay"
+    );
+
+    expect(purchase.paymentMethod).toBe("google-pay");
   });
 });

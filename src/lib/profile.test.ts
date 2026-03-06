@@ -17,6 +17,7 @@ function makePurchase(overrides: Partial<PurchaseRecord>): PurchaseRecord {
     downloadHistory: [],
     receiptId: "rcpt_123",
     receiptSentAt: "2026-02-10T12:00:00.000Z",
+    paymentMethod: "card",
     ...overrides
   };
 }

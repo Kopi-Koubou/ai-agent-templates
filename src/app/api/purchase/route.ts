@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { PAYMENT_METHODS } from "@/lib/payment-methods";
 import {
   buildPurchaseLicensePreview,
   buildPurchaseReceiptPreview,
@@ -12,7 +13,8 @@ const BUYER_EMAIL_COOKIE = "agentvault_buyer_email";
 
 const purchaseSchema = z.object({
   templateSlug: z.string().min(1),
-  email: z.string().email()
+  email: z.string().email(),
+  paymentMethod: z.enum(PAYMENT_METHODS).default("card")
 });
 
 export async function POST(request: Request): Promise<Response> {
@@ -27,11 +29,16 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   try {
-    const purchase = createPurchase(parsed.data.templateSlug, parsed.data.email);
+    const purchase = createPurchase(
+      parsed.data.templateSlug,
+      parsed.data.email,
+      parsed.data.paymentMethod
+    );
 
     const response = NextResponse.json({
       orderId: purchase.orderId,
       token: purchase.token,
+      paymentMethod: purchase.paymentMethod,
       expiresAt: purchase.expiresAt,
       downloadPath: `/api/download/${purchase.token}`,
       dashboardPath: "/dashboard",

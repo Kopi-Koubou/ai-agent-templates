@@ -11,6 +11,7 @@ import {
 interface PurchaseResponse {
   token: string;
   orderId: string;
+  paymentMethod: "card" | "apple-pay" | "google-pay";
   downloadPath: string;
   expiresAt: string;
   license: {
@@ -27,6 +28,7 @@ interface PurchaseResponse {
     sentAt: string;
     subject: string;
     delivery: "mock-queued";
+    paymentMethod: "card" | "apple-pay" | "google-pay";
     downloadPath: string;
     expiresAt: string;
     previewText: string;
@@ -73,7 +75,8 @@ describe("purchase and download API flow", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           templateSlug: "supportbot-pro",
-          email: buyerEmail
+          email: buyerEmail,
+          paymentMethod: "apple-pay"
         })
       })
     );
@@ -81,9 +84,11 @@ describe("purchase and download API flow", () => {
     expect(createResponse.status).toBe(200);
     const purchase = (await createResponse.json()) as PurchaseResponse;
     expect(purchase.orderId).toMatch(/^ord_/);
+    expect(purchase.paymentMethod).toBe("apple-pay");
     expect(purchase.downloadPath).toBe(`/api/download/${purchase.token}`);
     expect(purchase.receipt.id).toMatch(/^rcpt_/);
     expect(purchase.receipt.to).toBe(buyerEmail);
+    expect(purchase.receipt.paymentMethod).toBe("apple-pay");
     expect(purchase.receipt.downloadPath).toBe(purchase.downloadPath);
     expect(purchase.receipt.expiresAt).toBe(purchase.expiresAt);
     expect(purchase.license.model).toBe("per-user");
@@ -184,5 +189,21 @@ describe("purchase and download API flow", () => {
     const history = (await historyResponse.json()) as PurchasesResponse;
     expect(history.count).toBe(1);
     expect(history.purchases[0]?.token).toBe(refreshed.token);
+  });
+
+  test("rejects unsupported payment methods", async () => {
+    const response = await purchaseRoute(
+      new Request("http://localhost/api/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateSlug: "supportbot-pro",
+          email: "builder@example.com",
+          paymentMethod: "wire-transfer"
+        })
+      })
+    );
+
+    expect(response.status).toBe(400);
   });
 });
