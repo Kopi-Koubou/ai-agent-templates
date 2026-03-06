@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
+import { CustomizationWizardForm } from "@/components/customization-wizard-form";
 import { FavoriteToggle } from "@/components/favorite-toggle";
 import { listPublishedBundlesForTemplate } from "@/lib/bundles";
 import { ReviewForm } from "@/components/review-form";
@@ -214,6 +215,19 @@ export default async function TemplateDetailPage({
       <section className="detail-panel">
         <h2>CUSTOMIZE preview</h2>
         <pre>{preview.customizePreview}</pre>
+      </section>
+
+      <section className="detail-panel">
+        <h2>Customization wizard</h2>
+        <p className="muted">
+          Generate starter SOUL, IDENTITY, and tool configuration snippets for your
+          environment before editing template files manually.
+        </p>
+        <CustomizationWizardForm
+          templateSlug={template.slug}
+          templateTitle={template.title}
+          frameworks={template.frameworks}
+        />
       </section>
 
       <section className="detail-panel" id="reviews">
