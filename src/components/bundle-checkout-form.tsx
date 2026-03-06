@@ -6,6 +6,11 @@ import { FormEvent, useMemo, useState } from "react";
 import { resolveInitialBundleSlug } from "@/lib/checkout";
 import { formatCurrency } from "@/lib/format";
 import { BundleDetail } from "@/lib/bundles";
+import {
+  getPaymentMethodLabel,
+  PaymentMethod,
+  PAYMENT_METHODS
+} from "@/lib/payment-methods";
 
 interface BundleCheckoutFormProps {
   bundles: BundleDetail[];
@@ -22,6 +27,7 @@ interface BundlePurchaseResponse {
   retailCents: number;
   savingsCents: number;
   discountPct: number;
+  paymentMethod: PaymentMethod;
   items: Array<{
     templateSlug: string;
     templateTitle: string;
@@ -29,6 +35,7 @@ interface BundlePurchaseResponse {
     orderId: string;
     expiresAt: string;
     downloadPath: string;
+    paymentMethod: PaymentMethod;
   }>;
 }
 
@@ -40,6 +47,7 @@ export function BundleCheckoutForm({
     resolveInitialBundleSlug(bundles, initialBundleSlug)
   );
   const [email, setEmail] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [purchase, setPurchase] = useState<BundlePurchaseResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +75,7 @@ export function BundleCheckoutForm({
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, paymentMethod })
       });
 
       if (!response.ok) {
@@ -130,6 +138,24 @@ export function BundleCheckoutForm({
           </p>
         ) : null}
 
+        <fieldset className="payment-method-group">
+          <legend>Payment method</legend>
+          <div className="payment-method-list">
+            {PAYMENT_METHODS.map((method) => (
+              <label key={method} className="checkbox-option payment-method-option">
+                <input
+                  type="radio"
+                  name="bundlePaymentMethod"
+                  value={method}
+                  checked={paymentMethod === method}
+                  onChange={() => setPaymentMethod(method)}
+                />
+                <span>{getPaymentMethodLabel(method)}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <button type="submit" disabled={isSubmitting || !selectedBundle}>
           {isSubmitting ? "Processing..." : "Create bundle purchase"}
         </button>
@@ -153,6 +179,9 @@ export function BundleCheckoutForm({
           </p>
           <p className="muted">
             Purchased at: {new Date(purchase.purchasedAt).toLocaleString()}
+          </p>
+          <p className="muted">
+            Payment method: {getPaymentMethodLabel(purchase.paymentMethod)}
           </p>
           <div className="purchase-list">
             {purchase.items.map((item) => (

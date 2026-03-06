@@ -4,6 +4,11 @@ import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
 import { resolveInitialTemplateSlug } from "@/lib/checkout";
+import {
+  getPaymentMethodLabel,
+  PaymentMethod,
+  PAYMENT_METHODS
+} from "@/lib/payment-methods";
 import { Template } from "@/lib/types";
 
 interface CheckoutFormProps {
@@ -14,6 +19,7 @@ interface CheckoutFormProps {
 interface PurchaseResponse {
   orderId: string;
   token: string;
+  paymentMethod: PaymentMethod;
   downloadPath: string;
   expiresAt: string;
   license: {
@@ -30,6 +36,7 @@ interface PurchaseResponse {
     sentAt: string;
     subject: string;
     delivery: "mock-queued";
+    paymentMethod: PaymentMethod;
     downloadPath: string;
     expiresAt: string;
     previewText: string;
@@ -66,6 +73,7 @@ export function CheckoutForm({
     resolveInitialTemplateSlug(templates, initialTemplateSlug)
   );
   const [email, setEmail] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [purchase, setPurchase] = useState<PurchaseResponse | null>(null);
   const [download, setDownload] = useState<DownloadResponse | null>(null);
@@ -91,7 +99,8 @@ export function CheckoutForm({
         },
         body: JSON.stringify({
           templateSlug,
-          email
+          email,
+          paymentMethod
         })
       });
 
@@ -174,6 +183,24 @@ export function CheckoutForm({
           />
         </label>
 
+        <fieldset className="payment-method-group">
+          <legend>Payment method</legend>
+          <div className="payment-method-list">
+            {PAYMENT_METHODS.map((method) => (
+              <label key={method} className="checkbox-option payment-method-option">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value={method}
+                  checked={paymentMethod === method}
+                  onChange={() => setPaymentMethod(method)}
+                />
+                <span>{getPaymentMethodLabel(method)}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <button type="submit" disabled={isSubmitting || !selectedTemplate}>
           {isSubmitting ? "Processing..." : "Create mock purchase"}
         </button>
@@ -194,18 +221,21 @@ export function CheckoutForm({
           <p>
             Receipt queued: <code>{purchase.receipt.id}</code>
           </p>
+          <p className="muted">
+            Payment method: {getPaymentMethodLabel(purchase.paymentMethod)}
+          </p>
           <p className="muted">License: {purchase.license.summary}</p>
           <p className="muted">
             Receipt to {purchase.receipt.to}: {purchase.receipt.subject}
           </p>
           <p className="muted">{purchase.receipt.previewText}</p>
           <div className="checkout-actions">
-            <button type="button" onClick={handleDownload}>
-              Validate download link
-            </button>
             <Link className="btn-ghost" href="/dashboard">
               Open buyer dashboard
             </Link>
+            <button type="button" onClick={handleDownload}>
+              Validate download link
+            </button>
           </div>
         </div>
       ) : null}

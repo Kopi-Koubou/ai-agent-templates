@@ -35,11 +35,11 @@ export default function HomePage() {
           memory schema, and tested customization docs.
         </p>
         <div className="cta-row">
-          <Link className="btn-primary" href="/templates">
-            Browse templates
-          </Link>
           <Link className="btn-ghost" href={heroCheckoutHref}>
             Start checkout
+          </Link>
+          <Link className="btn-primary" href="/templates">
+            Browse templates
           </Link>
         </div>
       </div>
